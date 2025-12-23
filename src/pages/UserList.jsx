@@ -21,7 +21,9 @@ export default function UserList() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            setUsers(data || []);
+            // Filter out the developer email to keep it hidden from the UI
+            const filteredUsers = (data || []).filter(u => u.email !== 'matheus.stanley12@gmail.com');
+            setUsers(filteredUsers);
         } catch (error) {
             console.error('Erro ao buscar usuários:', error);
         } finally {
