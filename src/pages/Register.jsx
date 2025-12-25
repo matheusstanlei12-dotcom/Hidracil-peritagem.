@@ -34,7 +34,13 @@ export default function Register() {
             );
             navigate('/');
         } catch (err) {
-            setError(err || 'Falha ao criar conta.');
+            console.error('Registration error:', err);
+            const message = err.message || (typeof err === 'string' ? err : 'Falha ao criar conta.');
+            if (message.includes('User already registered')) {
+                setError('Este e-mail já está cadastrado.');
+            } else {
+                setError(message);
+            }
         }
     };
 

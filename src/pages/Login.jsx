@@ -16,7 +16,13 @@ export default function Login() {
             await login(email, password);
             navigate('/');
         } catch (err) {
-            setError('Falha ao entrar. Verifique suas credenciais.');
+            console.error('Login error:', err);
+            const message = err.message || 'Falha ao entrar.';
+            if (message.includes('Invalid login credentials')) {
+                setError('E-mail ou senha incorretos.');
+            } else {
+                setError(message);
+            }
         }
     };
 
