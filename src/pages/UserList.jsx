@@ -21,9 +21,8 @@ export default function UserList() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            // Filter out the developer email to keep it hidden from the UI
-            const filteredUsers = (data || []).filter(u => u.email !== 'matheus.stanley12@gmail.com');
-            setUsers(filteredUsers);
+            console.log("Users fetched:", data?.length);
+            setUsers(data || []);
         } catch (error) {
             console.error('Erro ao buscar usuários:', error);
         } finally {
@@ -105,7 +104,12 @@ export default function UserList() {
 
     return (
         <div>
-            <h1 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)' }}>Gestão de Usuários</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h1 style={{ margin: 0, color: 'var(--color-primary)' }}>Gestão de Usuários</h1>
+                <button onClick={fetchUsers} className="btn-secondary" style={{ padding: '0.5rem 1rem' }}>
+                    Atualizar Lista
+                </button>
+            </div>
 
             {/* PENDING APPROVAL SECTION */}
             {pendingUsers.length > 0 && (
@@ -182,7 +186,7 @@ export default function UserList() {
                     <thead style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
                         <tr>
                             <th style={{ padding: '1rem' }}>Usuário</th>
-                            <th style={{ padding: '1rem' }}>Função</th>
+                            <th style={{ padding: '1rem' }}>Nível de Acesso</th>
                             <th style={{ padding: '1rem' }}>Status</th>
                             <th style={{ padding: '1rem' }}>Ações</th>
                         </tr>

@@ -12,14 +12,40 @@ import {
     Menu,
     X
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../services/supabaseClient';
 
 export default function Sidebar() {
     const { user, logout } = useAuth();
     const location = useLocation();
-    const [isOpen, setIsOpen] = useState(false); // Mobile toggle
+    const [isOpen, setIsOpen] = useState(false);
+    const [pendingCount, setPendingCount] = useState(0);
 
     const isActive = (path) => location.pathname === path;
+
+    // Fetch pending users count for notification badge
+    useEffect(() => {
+        const fetchPendingCount = async () => {
+            if (user?.role === 'Gestor') {
+                try {
+                    const { count, error } = await supabase
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'Pendente');
+
+                    if (!error) setPendingCount(count || 0);
+                } catch (err) {
+                    console.error("Error fetching pending count:", err);
+                }
+            }
+        };
+
+        fetchPendingCount();
+
+        // Polling or Realtime could be added here, but simple fetch for now
+        const interval = setInterval(fetchPendingCount, 60000); // Every minute
+        return () => clearInterval(interval);
+    }, [user]);
 
     const menuItems = [
         { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista'] },
@@ -94,7 +120,21 @@ export default function Sidebar() {
                             }}
                         >
                             <item.icon size={20} style={{ marginRight: '0.75rem', color: item.color || (isActive(item.path) ? 'var(--color-primary)' : 'var(--color-text-secondary)') }} />
-                            {item.label}
+                            <span style={{ flex: 1 }}>{item.label}</span>
+
+                            {item.label === 'Gestão de Usuários' && pendingCount > 0 && (
+                                <span style={{
+                                    backgroundColor: '#d35400',
+                                    color: 'white',
+                                    borderRadius: '10px',
+                                    padding: '0.1rem 0.5rem',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    marginLeft: '0.5rem'
+                                }}>
+                                    {pendingCount}
+                                </span>
+                            )}
                         </Link>
                     ))}
                 </nav>
