@@ -1,16 +1,16 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable'; // Keep in case we need mixed usage, though we'll likely do manual for main layout
+import 'jspdf-autotable';
 
 // --- Constants & Config ---
 const COLORS = {
-    primary: '#004daa', // Hidracil/TrustEng Blue
+    primary: '#006945', // Updated to Hidracil Green from logo
     secondary: '#495057',
-    text: '#212529',
-    lightBg: '#f8f9fa',
-    border: '#dee2e6',
+    text: '#000000',
+    blueText: '#0056b3', // For table values
+    lightBg: '#ffffff',
+    border: '#000000', // Bold borders
     white: '#ffffff',
-    success: '#28a745', // For approvals/badges
-    warning: '#ffc107'
+    red: '#dc3545'
 };
 
 const PAGE = {
@@ -27,7 +27,13 @@ const formatCurrency = (val) => {
 
 const formatDate = (dateString) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    // Returns "Goiânia DD de MMMM de YYYY" format
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('pt-BR', { month: 'long' });
+    const year = date.getFullYear();
+    const city = "Goiânia"; // Hardcoded or from env
+    return `${city} ${day} de ${month.charAt(0).toUpperCase() + month.slice(1)} de ${year}`;
 };
 
 export const generatePeritagemPDF = (peritagem, type) => {
@@ -36,225 +42,251 @@ export const generatePeritagemPDF = (peritagem, type) => {
 
     // --- Header Generator ---
     const drawHeader = () => {
-        // Logo Placeholder or Text (Top Left)
-        doc.setFillColor(COLORS.primary);
-        doc.rect(PAGE.margin, PAGE.margin, 40, 20, 'F');
-        doc.setTextColor(COLORS.white);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text("HIDRACIL", PAGE.margin + 20, PAGE.margin + 12, { align: 'center' });
+        currentY = PAGE.margin;
 
-        // Company Info (Right of Logo)
-        doc.setTextColor(COLORS.text);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        // doc.text("Rua Exemplo, 123 - Cidade/UF", PAGE.margin + 45, PAGE.margin + 5);
-        // doc.text("Tel: (11) 99999-9999", PAGE.margin + 45, PAGE.margin + 10);
-
-        // Report Title (Top Right)
-        doc.setFontSize(16);
+        // 1. Top Section: Logo + Company Info
+        // Logo (Left) - Placeholder
+        doc.setFillColor(COLORS.white);
+        // Assuming we have a logo image, using text for now if image fails, but drawing a placeholder rect
+        // doc.addImage("/logo.png", "PNG", PAGE.margin, currentY, 40, 20); 
+        doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(COLORS.primary);
-        doc.text("RELATÓRIO TÉCNICO", PAGE.width - PAGE.margin, PAGE.margin + 8, { align: 'right' });
+        doc.text("HIDRACIL", PAGE.margin + 10, currentY + 10);
+        doc.setFontSize(8);
+        doc.text("Componentes Hidráulicos", PAGE.margin + 5, currentY + 15);
 
-        // Subtitle (Type)
-        doc.setFontSize(10);
-        doc.setTextColor(COLORS.secondary);
-        doc.text(type.toUpperCase().replace('_', ' '), PAGE.width - PAGE.margin, PAGE.margin + 14, { align: 'right' });
-
-        // Info Box (Below Header)
-        currentY = PAGE.margin + 25;
-
-        doc.setDrawColor(COLORS.border);
-        doc.setFillColor(COLORS.lightBg);
-        doc.roundedRect(PAGE.margin, currentY, PAGE.contentWidth, 20, 3, 3, 'FD');
-
+        // Company Details (Right)
+        const infoX = 70;
+        doc.setTextColor(COLORS.text);
         doc.setFontSize(9);
-        doc.setTextColor(COLORS.secondary);
-
-        // Column 1
-        doc.text("CLIENTE:", PAGE.margin + 5, currentY + 6);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(COLORS.text);
-        doc.text(peritagem.cliente || "-", PAGE.margin + 5, currentY + 11);
+        doc.text("Hidracil Componentes Hidráulicos Ltda", infoX, currentY + 5);
 
-        // Column 2
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(COLORS.secondary);
-        doc.text("EQUIPAMENTO:", PAGE.margin + 70, currentY + 6);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(COLORS.text);
-        doc.text(peritagem.equipamento || "N/A", PAGE.margin + 70, currentY + 11);
+        doc.setFontSize(7);
+        doc.text("CNPJ: 08.376.390/0001-07", infoX, currentY + 10);
+        doc.text("I.E.: 10.271.903-9", infoX + 60, currentY + 10);
+        doc.text("Fone: (62) 4006-5151", infoX, currentY + 14);
+        doc.text("Fax: (62) 4006-5130", infoX + 60, currentY + 14);
+        doc.text("Rua Guaranapes, 120 Qd 34 Lt 01    Bairro Ipiranga", infoX, currentY + 18);
 
-        // Column 3
+        // Title
+        currentY += 25;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("RELATÓRIO TÉCNICO", PAGE.width / 2, currentY, { align: 'center' });
+
+        // 2. Client Info Box
+        currentY += 5;
+        drawRoundedBox(currentY, 22); // Height approx
+
+        doc.setFontSize(8);
+        const line1Y = currentY + 6;
+        const line2Y = currentY + 12;
+        const line3Y = currentY + 18;
+
+        // Line 1: Cliente
+        doc.setFont('helvetica', 'bold');
+        doc.text("Cliente:", PAGE.margin + 2, line1Y);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(COLORS.secondary);
-        doc.text("DATA:", PAGE.margin + 140, currentY + 6);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(COLORS.text);
-        doc.text(formatDate(peritagem.date || peritagem.createdAt), PAGE.margin + 140, currentY + 11);
+        doc.text(peritagem.cliente || "", PAGE.margin + 15, line1Y);
 
-        currentY += 25; // Space after info box
+        // Line 2: Endereço (Mocked if missing) | Bairro
+        doc.setFont('helvetica', 'bold');
+        doc.text("Endereço:", PAGE.margin + 2, line2Y);
+        doc.setFont('helvetica', 'normal');
+        doc.text("Rua Rio Azul, Qd. 03 Lt. 07,09 11 e 13 N.0", PAGE.margin + 18, line2Y); // Mock from image ref? Or leave blank/field
+
+        doc.setFont('helvetica', 'bold');
+        doc.text("Bairro:", PAGE.margin + 120, line2Y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(peritagem.cidade || "Beira Rio", PAGE.margin + 132, line2Y);
+
+        // Line 3: Município | UF
+        doc.setFont('helvetica', 'bold');
+        doc.text("Município:", PAGE.margin + 2, line3Y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(peritagem.cidade || "Parauapebas", PAGE.margin + 18, line3Y);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text("UF:", PAGE.margin + 120, line3Y);
+        doc.setFont('helvetica', 'normal');
+        doc.text("PA", PAGE.margin + 126, line3Y); // Mock
+
+        // 3. Equipment Info Box
+        currentY += 25;
+        // Title for box
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text("IDENTIFICAÇÃO DO EQUIPAMENTO", PAGE.width / 2, currentY + 4, { align: 'center' });
+
+        // The box itself
+        drawRoundedBox(currentY + 5, 30);
+
+        const contentBoxY = currentY + 5;
+        doc.setFontSize(8);
+
+        const fields = [
+            { label: "Orçamento:", val: peritagem.orcamento },
+            { label: "Equipamento:", val: peritagem.equipamento },
+            { label: "CX:", val: peritagem.cx },
+            { label: "TAG:", val: peritagem.tag },
+            { label: "NF:", val: peritagem.nf }
+        ];
+
+        fields.forEach((f, i) => {
+            const y = contentBoxY + 6 + (i * 5);
+            doc.setFont('helvetica', 'bold');
+            doc.text(f.label, PAGE.margin + 2, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text(String(f.val || ""), PAGE.margin + 25, y);
+        });
+
+        currentY += 40;
+
+        // Footer of Header (Responsible + Date)
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Responsável:", PAGE.width / 2 - 20, currentY, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        doc.text(peritagem.responsavel_tecnico || "Guilherme F. Rodrigues", PAGE.width / 2 - 18, currentY);
+
+        doc.setFont('helvetica', 'italic');
+        doc.text(formatDate(peritagem.created_at || new Date()), PAGE.width - PAGE.margin, currentY, { align: 'right' });
+
+        currentY += 10;
+        // Separator double line or simple line
+        doc.setDrawColor(COLORS.border);
+        doc.setLineWidth(0.5);
+        doc.line(PAGE.margin, currentY, PAGE.width - PAGE.margin, currentY);
+        currentY += 5;
     };
 
-    const drawFooter = (pageNumber) => {
-        const totalPages = doc.internal.getNumberOfPages();
-        doc.setFontSize(8);
-        doc.setTextColor(COLORS.secondary);
-        doc.text(`Página ${pageNumber} de ${totalPages}`, PAGE.width / 2, PAGE.height - 10, { align: 'center' });
-        doc.text("Gerado por Sistema Hidracil", PAGE.width - PAGE.margin, PAGE.height - 10, { align: 'right' });
+    const drawRoundedBox = (y, h) => {
+        doc.setDrawColor(COLORS.border);
+        doc.setLineWidth(0.7);
+        doc.roundedRect(PAGE.margin, y, PAGE.contentWidth, h, 3, 3, 'S');
     };
 
     // --- Initial Header ---
     drawHeader();
 
     // --- Items Loop ---
-    doc.setFontSize(10);
 
     peritagem.items.forEach((item, index) => {
-        // Calculate needed height for this item
-        // A rough estimate: Base 40 + Image (opt) + Text lines
-        // We will render text first to measure it.
+        // Estimate height: Table (3 rows * 7) + Photos (assume 60)
+        const tableHeight = 25; // 3 rows
+        const photoHeight = (item.photos && item.photos.length > 0) ? 70 : 10;
+        const totalItemHeight = tableHeight + photoHeight + 10;
 
-        // Define column widths
-        const colPhotoW = 40;
-        const colContentW = type === 'sem_custo' ? 140 : 100;
-        const colSideW = type === 'sem_custo' ? 0 : 40;
-
-        const textAnomalias = doc.splitTextToSize(`Anomalias: ${item.anomalies || '-'}`, colContentW);
-        const textSolucao = doc.splitTextToSize(`Solução: ${item.solution || '-'}`, colContentW);
-        const textComponent = doc.splitTextToSize(`${item.component || 'Item sem nome'}`, colContentW);
-
-        const linesHeight = (textAnomalias.length + textSolucao.length + textComponent.length) * 5;
-        const itemHeight = Math.max(linesHeight + 20, 50); // Min height 50 (for photo space)
-
-        // Page Break Check
-        if (currentY + itemHeight > PAGE.height - PAGE.margin - 10) {
+        // Page Break
+        if (currentY + totalItemHeight > PAGE.height - PAGE.margin) {
             doc.addPage();
-            currentY = PAGE.margin; // Reset Y
-            drawHeader(); // Re-draw header
+            drawHeader();
         }
 
-        // Draw Container
+        // Draw Table Structure
+        // Row 1: Descrição
         doc.setDrawColor(COLORS.border);
-        doc.setFillColor(COLORS.white);
-        // doc.roundedRect(PAGE.margin, currentY, PAGE.contentWidth, itemHeight, 2, 2, 'S'); // Optional border for whole item
+        doc.setLineWidth(0.1);
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7); // Header row box ?
 
-        // --- Photo Section (Left) ---
-        const photoX = PAGE.margin;
-        const photoY = currentY;
-
-        // Background for photo area
-        doc.setFillColor(COLORS.lightBg);
-        doc.rect(photoX, photoY, colPhotoW, itemHeight, 'F');
-
-        if (item.photos && item.photos.length > 0) {
-            try {
-                // Try to add the first image
-                // doc.addImage assumes base64 jpeg/png
-                doc.addImage(item.photos[0], 'JPEG', photoX + 2, photoY + 2, colPhotoW - 4, 30, undefined, 'FAST');
-            } catch (e) {
-                doc.setFontSize(6);
-                doc.text("Erro img", photoX + 2, photoY + 10);
-            }
-        } else {
-            doc.setFontSize(8);
-            doc.setTextColor(COLORS.secondary);
-            doc.text("Sem foto", photoX + 10, photoY + 15);
-        }
-
-        // --- Content Section (Middle) ---
-        const contentX = photoX + colPhotoW + 5;
-        let textY = currentY + 5;
-
-        // Component Title
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        doc.setTextColor(COLORS.primary);
-        doc.text(textComponent, contentX, textY);
-        textY += (textComponent.length * 5) + 3;
-
-        // Anomalies
-        doc.setFont('helvetica', 'normal');
+        // Cells
+        // Col 1 Title
         doc.setFontSize(9);
-        doc.setTextColor('#dc3545'); // Red for anomalies
-        doc.text(textAnomalias, contentX, textY);
-        textY += (textAnomalias.length * 5) + 2;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.text);
+        doc.text("DESCRIÇÃO:", PAGE.margin + 2, currentY + 5);
 
-        // Solution
-        doc.setTextColor(COLORS.success); // Green for solution
-        doc.text(textSolucao, contentX, textY);
+        // Col 1 Value
+        doc.setTextColor(COLORS.blueText);
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.component || "", PAGE.margin + 35, currentY + 5);
 
+        currentY += 7;
 
-        // --- Side Bar (Right) - Costs ---
-        if (colSideW > 0) {
-            const sideX = PAGE.width - PAGE.margin - colSideW;
-            const sideY = currentY;
+        // Row 2: Anomalia
+        doc.setTextColor(COLORS.text);
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7);
 
-            // Separator Line
-            doc.setDrawColor(COLORS.border);
-            doc.line(sideX - 2, sideY, sideX - 2, sideY + itemHeight);
+        doc.setFont('helvetica', 'bold');
+        doc.text("ANOMALIA:", PAGE.margin + 2, currentY + 5);
 
-            let costY = sideY + 6;
-            doc.setFontSize(8);
-            doc.setTextColor(COLORS.secondary);
+        doc.setTextColor(COLORS.blueText);
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.anomalies || "", PAGE.margin + 35, currentY + 5);
 
-            if (type === 'comprador') {
-                doc.text("Custo Estimado:", sideX, costY);
-                doc.setFontSize(10);
-                doc.setTextColor(COLORS.text);
-                doc.text(formatCurrency(item.costs?.cost), sideX, costY + 5);
+        // Sidebar for Spec/found (Visual only)
+        doc.setDrawColor(COLORS.border);
+        doc.line(PAGE.margin + 130, currentY, PAGE.margin + 130, currentY + 7); // Vertical split
+        doc.line(PAGE.margin + 160, currentY, PAGE.margin + 160, currentY + 7); // Vertical split 2
 
-                costY += 15;
-                doc.setFontSize(8);
-                doc.setTextColor(COLORS.secondary);
-                doc.text("Fornecedor:", sideX, costY);
-                doc.setFontSize(9);
-                doc.setTextColor(COLORS.text);
-                // Wrap long supplier names
-                const supText = doc.splitTextToSize(item.costs?.supplier || '-', colSideW - 2);
-                doc.text(supText, sideX, costY + 5);
-            }
+        doc.setTextColor(COLORS.text);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Especificado", PAGE.margin + 132, currentY + 5);
+        doc.text("X", PAGE.margin + 170, currentY + 5, { align: 'center' }); // Mocked X
 
-            if (type === 'orcamentista' || type === 'cliente') {
-                const isCliente = type === 'cliente';
-                const label = isCliente ? "Valor Unit.:" : "Preço Venda:";
+        currentY += 7;
 
-                doc.text(label, sideX, costY);
-                doc.setFontSize(10);
-                doc.setTextColor(COLORS.text);
-                // Orcamentista sees 'sellPrice', Comprador saw 'cost'.
-                // If this is client, they see the final price.
-                const price = item.budget?.sellPrice || 0;
-                doc.text(formatCurrency(price), sideX, costY + 5);
+        // Row 3: Solução
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7);
+        doc.setFont('helvetica', 'bold');
+        doc.text("SOLUÇÃO:", PAGE.margin + 2, currentY + 5);
 
-                if (isCliente) {
-                    costY += 15;
-                    doc.setFontSize(8);
-                    doc.setTextColor(COLORS.secondary);
-                    // doc.text("Total Item:", sideX, costY); // If qty exists
+        doc.setTextColor(COLORS.blueText);
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.solution || "", PAGE.margin + 35, currentY + 5);
+
+        // Sidebar for Spec/found
+        doc.setDrawColor(COLORS.border);
+        doc.line(PAGE.margin + 130, currentY, PAGE.margin + 130, currentY + 7);
+        doc.line(PAGE.margin + 160, currentY, PAGE.margin + 160, currentY + 7);
+
+        doc.setTextColor(COLORS.text);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Encontrado", PAGE.margin + 132, currentY + 5);
+        doc.setTextColor(COLORS.blueText);
+        doc.text("X", PAGE.margin + 170, currentY + 5, { align: 'center' });
+
+        currentY += 10;
+
+        // Photos
+        if (item.photos && item.photos.length > 0) {
+            const photoW = 120;
+            const photoH = 50;
+            const photoX = (PAGE.width - photoW) / 2; // Center
+
+            item.photos.forEach((photo) => {
+                if (currentY + photoH > PAGE.height - PAGE.margin) {
+                    doc.addPage();
+                    drawHeader();
                 }
-            }
+
+                // Red border around photo
+                doc.setDrawColor(COLORS.red);
+                doc.setLineWidth(1);
+                doc.rect(photoX - 1, currentY - 1, photoW + 2, photoH + 2);
+
+                try {
+                    doc.addImage(photo, 'JPEG', photoX, currentY, photoW, photoH);
+                } catch (e) {
+                    doc.text("Erro na Imagem", photoX, currentY + 20);
+                }
+                currentY += photoH + 5;
+            });
         }
 
-        // Advance Y
-        currentY += itemHeight + 5; // Margin between items
-
-        // Draw separator line at bottom of item
-        doc.setDrawColor(COLORS.border);
-        doc.line(PAGE.margin, currentY - 2.5, PAGE.width - PAGE.margin, currentY - 2.5);
-
+        currentY += 5; // Spacing before next item
     });
 
-    // --- Footer Loop to add page numbers ---
-    // Note: jsPDF adds pages dynamically, so we can't easily jump back to add footers unless we use a different pattern.
-    // However, we can simply number them at the end if we know how many pages.
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        drawFooter(i);
+        doc.setFontSize(8);
+        doc.setTextColor(COLORS.secondary);
+        doc.text(`Página ${i} de ${pageCount}`, PAGE.width - PAGE.margin, PAGE.height - 5, { align: 'right' });
     }
 
-    // Save
-    doc.save(`Relatorio_${peritagem.id || 'Draft'}_${type}.pdf`);
+    doc.save(`Relatorio_${peritagem.id || 'Draft'}.pdf`);
 };

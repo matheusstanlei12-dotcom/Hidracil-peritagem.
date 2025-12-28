@@ -143,13 +143,26 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
 
-        // Check profile status immediately after login if needed, 
-        // but onAuthStateChange will handle setting the user state.
-        // We can throw here if we want to block login UI for pending users, 
-        // but getting the profile first is safer.
+        // Check profile status immediately
+        if (data.session?.user) {
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('status')
+                .eq('id', data.session.user.id)
+                .single();
 
-        // Wait for user state to populate via onAuthStateChange or manual fetch
-        // For simpler UX, we return data and let the UI react to user state change.
+            if (!profileError && profile) {
+                if (profile.status === 'Pendente') {
+                    await supabase.auth.signOut();
+                    throw new Error("Aguardando aprovação para acesso ao sistema.");
+                }
+                if (profile.status === 'Inativo') {
+                    await supabase.auth.signOut();
+                    throw new Error("Usuário inativo. Contate o administrador.");
+                }
+            }
+        }
+
         return data;
     };
 
