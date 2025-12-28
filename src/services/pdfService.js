@@ -228,14 +228,60 @@ export const generatePeritagemPDF = (peritagem, type) => {
         currentY += 5; // spacing between items
     });
 
-    // Page Numbers & Footer on every page
+    // --- SIGNATURES SECTION (LAST PAGE) ---
+    // Check space for signature
+    if (currentY + 40 > PAGE.h - PAGE.m - 20) {
+        doc.addPage();
+        drawHeader();
+        currentY = 60; // Start higher on empty last page
+    } else {
+        currentY += 20;
+    }
+
+    const sigW = 75;
+    const sigY = currentY + 15;
+
+    doc.setDrawColor(COLORS.secondary);
+    doc.setLineWidth(0.5);
+
+    // Left Sig: Hidracil
+    doc.line(PAGE.m, sigY, PAGE.m + sigW, sigY);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(COLORS.secondary);
+    doc.text("HIDRACIL COMPONENTES HIDRÁULICOS LTDA", PAGE.m + (sigW / 2), sigY + 5, { align: 'center' });
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(COLORS.text);
+    doc.text("RESPONSÁVEL TÉCNICO / ENGENHARIA", PAGE.m + (sigW / 2), sigY + 9, { align: 'center' });
+
+    // Right Sig: Cliente
+    const rightSigX = PAGE.w - PAGE.m - sigW;
+    doc.line(rightSigX, sigY, PAGE.w - PAGE.m, sigY);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(COLORS.secondary);
+    doc.text("ACEITE DO CLIENTE", rightSigX + (sigW / 2), sigY + 5, { align: 'center' });
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(COLORS.text);
+    doc.text("RESPONSÁVEL / DATA: ___/___/___", rightSigX + (sigW / 2), sigY + 9, { align: 'center' });
+
+
+    // --- GLOBAL FOOTER (ON ALL PAGES) ---
     const totalPages = doc.internal.getNumberOfPages();
-    for (let i = 2; i <= totalPages; i++) {
+    for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor("#9CA3AF"); // Light Gray (Discreet)
+        doc.setFont('helvetica', 'normal');
+
+        const footerY = PAGE.h - 15;
+        const footerText = `HIDRACIL Componentes Hidráulicos | Documento Gerado em ${new Date().toLocaleDateString('pt-BR')} | Página ${i} de ${totalPages}`;
+        doc.text(footerText, PAGE.w / 2, footerY, { align: 'center' });
+
         doc.setFontSize(7);
-        doc.setTextColor(COLORS.text);
-        doc.text(`Hidracil Assistência Técnica - Página ${i} de ${totalPages}`, PAGE.m, PAGE.h - 10);
-        doc.text(`Emitido em ${new Date().toLocaleString('pt-BR')}`, PAGE.w - PAGE.m, PAGE.h - 10, { align: 'right' });
+        doc.text("Documento técnico gerado automaticamente pelo sistema TrustEng", PAGE.w / 2, footerY + 4, { align: 'center' });
     }
 
     doc.save(`Relatório_Técnico_Hidracil_${peritagem.orcamento || "Draft"}.pdf`);
