@@ -1,16 +1,19 @@
-# React + Vite
+# Hidracil - Sistema de Peritagem Hidráulica
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema corporativo para gestão de peritagens técnicas e orçamentos.
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades Recentes
+- **Segurança de Acesso:** Bloqueio automático de usuários Pendentes/Inativos.
+- **Relatório PDF:** Novo layout profissional com fotos integradas.
+- **Otimização Mobile:** Interface totalmente ajustada para celulares.
+- **Upload Inteligente:** Compressão de imagens para evitar falhas no salvamento.
+- **Gestão de Usuários:** Interface de aprovação rápida pelo Gestor.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Tecnologias
+- React + Vite
+- Supabase (Autenticação e Banco de Dados)
+- jsPDF (Geração de Relatórios)
+- Lucide React (Ícones)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 👤 Acesso Administrativo
+O acesso principal é realizado através do e-mail do Gestor cadastrado ou pelo Gestor Oculto configurado no AuthContext.
