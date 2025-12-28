@@ -216,7 +216,7 @@ export default function NewPeritagem() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {items.map((item, index) => (
-                                <div key={item.id} style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1.5rem', position: 'relative' }}>
+                                <div key={item.id} className="item-container" style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1.5rem', position: 'relative' }}>
 
                                     {items.length > 1 && (
                                         <button
@@ -267,7 +267,7 @@ export default function NewPeritagem() {
 
                                     {/* Action Buttons for Photos */}
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <div className="photo-upload-container" style={{ display: 'flex', gap: '1rem' }}>
                                             {/* Camera Button */}
                                             <div style={{ flex: 1 }}>
                                                 <input
@@ -427,41 +427,67 @@ export default function NewPeritagem() {
             <style>{`
         .form-input {
           width: 100%;
-          padding: 0.75rem;
+          padding: 0.85rem;
           border: 1px solid #E5E7EB;
-          border-radius: 6px;
-          font-size: 1rem; /* Better for mobile to prevent zoom */
+          border-radius: 8px;
+          font-size: 1rem;
           outline: none;
           color: #333;
-          /* text-align: center; Removed to allow left align on mobile which is standard */
-        }
-        .form-input::placeholder {
-          color: #9CA3AF;
+          transition: border-color 0.2s;
         }
         .form-input:focus {
           border-color: #006945;
           box-shadow: 0 0 0 2px rgba(0, 105, 69, 0.1);
         }
+        
+        .section-title {
+          font-size: 0.75rem;
+          color: #999;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          margin-bottom: 1.5rem;
+          font-weight: 700;
+          text-align: center;
+          border-bottom: 1px solid #f0f0f0;
+          padding-bottom: 0.5rem;
+        }
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .grid-2-cols, .grid-3-cols, .grid-header {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.25rem !important;
+            }
+            .grid-2-cols > div, .grid-3-cols > div {
+                width: 100% !important;
             }
             form {
-                padding: 1rem !important;
+                padding: 1.25rem !important;
             }
             h2 {
-                font-size: 1rem !important;
+                font-size: 0.95rem !important;
+            }
+            label {
+                text-align: left !important;
+                font-size: 0.85rem !important;
+                margin-left: 2px;
             }
             .action-buttons {
                 flex-direction: column-reverse;
                 width: 100%;
+                gap: 0.75rem !important;
             }
             .action-buttons button {
                 width: 100%;
+                padding: 1.1rem !important;
+                font-size: 1rem !important;
+            }
+            .item-container {
                 padding: 1rem !important;
+            }
+            .photo-upload-container {
+                flex-direction: column !important;
             }
         }
       `}</style>
