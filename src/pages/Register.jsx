@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
-// Force Update for Vercel: 2025-12-28 12:46
+// Force Update for Vercel: 2025-12-28 12:48 (Branch: principal)
 export default function Register() {
     const [formData, setFormData] = useState({
         name: '',
