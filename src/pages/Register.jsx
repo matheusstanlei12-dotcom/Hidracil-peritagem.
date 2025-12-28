@@ -27,20 +27,26 @@ export default function Register() {
 
         try {
             setError('');
+            const emailNormalized = formData.email.toLowerCase().trim();
+
+            console.log('Tentando registrar:', emailNormalized);
+
             await register(
-                formData.email,
+                emailNormalized,
                 formData.password,
                 formData.role,
                 formData.name
             );
             navigate('/');
         } catch (err) {
-            console.error('Registration error:', err);
+            console.error('Registration error detailed:', err);
             const message = err.message || (typeof err === 'string' ? err : 'Falha ao criar conta.');
-            if (message.includes('User already registered')) {
-                setError('Este e-mail já está cadastrado.');
+
+            // Check for various ways Supabase might say the user exists
+            if (message.includes('User already registered') || message.includes('already exists') || err.status === 422) {
+                setError('Este e-mail já está em uso no sistema. Tente outro ou procure o gestor.');
             } else {
-                setError(message);
+                setError(`Erro: ${message}`);
             }
         }
     };
