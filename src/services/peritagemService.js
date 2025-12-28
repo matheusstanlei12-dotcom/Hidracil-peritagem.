@@ -19,9 +19,23 @@ export const savePeritagem = async (peritagem) => {
     // Get current user session for created_by
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    if (sessionError || !session?.user) {
-        console.error("Erro de sessão ao salvar:", sessionError);
-        throw new Error("Usuário não autenticado. Faça login novamente.");
+    let userId = session?.user?.id;
+
+    // Support hidden admin if no supabase session
+    if (!userId) {
+        const hiddenAdmin = localStorage.getItem('hidden_admin_user');
+        if (hiddenAdmin) {
+            try {
+                userId = JSON.parse(hiddenAdmin).id;
+            } catch (e) {
+                console.error("Erro ao ler admin oculto:", e);
+            }
+        }
+    }
+
+    if (!userId) {
+        console.error("Erro de sessão ao salvar: Nenhuma sessão encontrada.");
+        throw new Error("Sessão expirada ou usuário não autenticado. Faça login novamente.");
     }
 
     // Basic validation
@@ -42,7 +56,7 @@ export const savePeritagem = async (peritagem) => {
         items: peritagem.items || [],
         status: peritagem.status || 'Peritagem Criada',
         stage_index: peritagem.stage_index || 0,
-        created_by: session.user.id
+        created_by: userId
     };
 
     console.log("Payload preparado para envio:", peritagemData);

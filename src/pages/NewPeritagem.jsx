@@ -108,7 +108,7 @@ export default function NewPeritagem() {
             navigate('/peritagens');
         } catch (error) {
             console.error('Erro ao salvar peritagem:', error);
-            alert('Erro ao salvar peritagem. Verifique sua conexão.');
+            alert(`Erro ao salvar peritagem: ${error.message || 'Erro desconhecido'}`);
         }
     };
 
