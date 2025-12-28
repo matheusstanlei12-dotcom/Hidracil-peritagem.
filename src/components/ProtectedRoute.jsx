@@ -12,7 +12,9 @@ export default function ProtectedRoute({ children, allowedRoles }) {
         return <Navigate to="/login" replace />;
     }
 
-    if (user.status === 'Pendente' || user.status === 'Inativo') {
+    const status = (user.status || 'Pendente').toLowerCase();
+
+    if (status === 'pendente' || status === 'inativo') {
         return (
             <div style={{
                 height: '100vh',

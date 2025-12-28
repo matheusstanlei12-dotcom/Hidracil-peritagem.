@@ -102,6 +102,15 @@ export const AuthProvider = ({ children }) => {
                 .single();
 
             if (data) {
+                const status = (data.status || 'Pendente').toLowerCase();
+                if (status === 'pendente' || status === 'inativo') {
+                    console.warn("User status is restricted, signing out...");
+                    await supabase.auth.signOut();
+                    setUser(null);
+                    setLoading(false);
+                    return;
+                }
+
                 setUser({
                     ...data,
                     id: userId,
@@ -109,7 +118,12 @@ export const AuthProvider = ({ children }) => {
                 });
             } else {
                 // Fallback if profile trigger failed/delayed (shouldn't happen often)
-                setUser({ id: userId, email: email });
+                setUser({
+                    id: userId,
+                    email: email,
+                    status: 'Pendente',
+                    role: 'Aguardando...'
+                });
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
