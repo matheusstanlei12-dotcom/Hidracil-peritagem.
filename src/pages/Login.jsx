@@ -13,7 +13,9 @@ export default function Login() {
         e.preventDefault();
         try {
             setError('');
-            await login(email, password);
+            const emailNormalized = email.toLowerCase().trim();
+            console.log('Tentando login:', emailNormalized);
+            await login(emailNormalized, password);
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);
