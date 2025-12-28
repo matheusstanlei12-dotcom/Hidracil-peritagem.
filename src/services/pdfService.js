@@ -209,6 +209,23 @@ export const generatePeritagemPDF = (peritagem, type) => {
         doc.setFont('helvetica', 'normal');
         doc.text(item.component || "", PAGE.margin + 35, currentY + 5);
 
+        // Extra info based on type
+        if (type === 'comprador') {
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(COLORS.text);
+            doc.text("CUSTO:", PAGE.margin + 120, currentY + 5);
+            doc.setTextColor(COLORS.blueText);
+            doc.setFont('helvetica', 'normal');
+            doc.text(formatCurrency(item.costs?.cost), PAGE.margin + 135, currentY + 5);
+        } else if (type === 'orcamentista' || type === 'cliente') {
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(COLORS.text);
+            doc.text("VALOR:", PAGE.margin + 120, currentY + 5);
+            doc.setTextColor(COLORS.blueText);
+            doc.setFont('helvetica', 'normal');
+            doc.text(formatCurrency(item.budget?.sellPrice), PAGE.margin + 135, currentY + 5);
+        }
+
         currentY += tableHeaderHeight;
 
         // Row 2: Anomalia
@@ -220,6 +237,15 @@ export const generatePeritagemPDF = (peritagem, type) => {
         doc.setTextColor(COLORS.blueText);
         doc.setFont('helvetica', 'normal');
         doc.text(item.anomalies || "", PAGE.margin + 35, currentY + 5);
+
+        if (type === 'comprador') {
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(COLORS.text);
+            doc.text("FORNEC.:", PAGE.margin + 120, currentY + 5);
+            doc.setTextColor(COLORS.blueText);
+            doc.setFont('helvetica', 'normal');
+            doc.text(item.costs?.supplier || "-", PAGE.margin + 135, currentY + 5);
+        }
 
         currentY += tableHeaderHeight;
 

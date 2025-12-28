@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPeritagemById, updatePeritagem } from '../services/peritagemService';
+import { generatePeritagemPDF } from '../services/pdfService';
 import { useAuth } from '../contexts/AuthContext';
-import { X, Save, FileText, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 const COMPONENT_OPTIONS = [
     "Olhal superior", "Rótula", "Anel retentor", "Pino graxeiro",
@@ -104,56 +102,6 @@ export default function PeritagemDetails() {
         }
     };
 
-    const generatePDF = (type) => {
-        const doc = new jsPDF();
-
-        // Header
-        doc.setFontSize(22);
-        doc.text('HIDRACIL - Relatório de Peritagem', 14, 20);
-
-        doc.setFontSize(12);
-        doc.text(`Cliente: ${peritagem.cliente}`, 14, 30);
-        doc.text(`Equipamento: ${peritagem.equipamento}`, 14, 36);
-        doc.text(`Data: ${new Date(peritagem.createdAt).toLocaleDateString()}`, 14, 42);
-        doc.text(`Tipo de Relatório: ${type.toUpperCase()}`, 14, 48);
-
-        // Define columns based on type
-        let head = [['Componente', 'Anomalias', 'Solução']];
-        if (type === 'comprador') head[0].push('Custo', 'Fornecedor');
-        if (type === 'orcamentista') head[0].push('Preço Venda');
-        if (type === 'cliente') head = [['Componente', 'Solução', 'Preço Unit.', 'Total']];
-
-        const body = peritagem.items.map(item => {
-            const row = [item.component, item.anomalies, item.solution];
-            const costs = item.costs || {};
-            const budget = item.budget || {};
-
-            if (type === 'comprador') {
-                row.push(`R$ ${costs.cost || 0}`, costs.supplier || '-');
-            }
-            if (type === 'orcamentista') {
-                row.push(`R$ ${budget.sellPrice || 0}`);
-            }
-            if (type === 'cliente') {
-                // Client view: Simplify
-                return [
-                    item.component,
-                    item.solution,
-                    `R$ ${budget.sellPrice || 0}`,
-                    `R$ ${budget.sellPrice || 0}` // Assuming qty 1
-                ];
-            }
-            return row;
-        });
-
-        doc.autoTable({
-            startY: 55,
-            head: head,
-            body: body,
-        });
-
-        doc.save(`peritagem_${peritagem.id}_${type}.pdf`);
-    };
 
     if (loading || !peritagem) return <div>Carregando...</div>;
 
@@ -345,10 +293,10 @@ export default function PeritagemDetails() {
                         {/* PDFs Actions - Only if Finalized */}
                         {peritagem.status === 'Orçamento Finalizado' && (
                             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                <button onClick={() => generatePDF('sem_custo')} className="btn-pdf">PDF S/ Custo</button>
-                                <button onClick={() => generatePDF('comprador')} className="btn-pdf">PDF Comprador</button>
-                                <button onClick={() => generatePDF('orcamentista')} className="btn-pdf">PDF Orçamentista</button>
-                                <button onClick={() => generatePDF('cliente')} className="btn-pdf-primary">PDF CLIENTE</button>
+                                <button onClick={() => generatePeritagemPDF(peritagem, 'sem_custo')} className="btn-pdf">PDF S/ Custo</button>
+                                <button onClick={() => generatePeritagemPDF(peritagem, 'comprador')} className="btn-pdf">PDF Comprador</button>
+                                <button onClick={() => generatePeritagemPDF(peritagem, 'orcamentista')} className="btn-pdf">PDF Orçamentista</button>
+                                <button onClick={() => generatePeritagemPDF(peritagem, 'cliente')} className="btn-pdf-primary">PDF CLIENTE</button>
                             </div>
                         )}
 
