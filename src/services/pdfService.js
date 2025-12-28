@@ -175,41 +175,45 @@ export const generatePeritagemPDF = (peritagem, type) => {
     // --- Items Loop ---
 
     peritagem.items.forEach((item, index) => {
-        // Estimate height: Table (3 rows * 7) + Photos (assume 60)
-        const tableHeight = 25; // 3 rows
-        const photoHeight = (item.photos && item.photos.length > 0) ? 70 : 10;
-        const totalItemHeight = tableHeight + photoHeight + 10;
+        const tableHeaderHeight = 7;
+        const photoHeight = 60;
+        const photoWidth = 90;
+        const gap = 5;
+
+        // Estimate item height without photos first
+        let itemBaseHeight = tableHeaderHeight * 3 + 10;
+
+        // Photos calculation
+        const photosCount = item.photos?.length || 0;
+        const rowsCount = Math.ceil(photosCount / 2);
+        const itemPhotosHeight = rowsCount * (photoHeight + gap);
+        const totalItemHeight = itemBaseHeight + itemPhotosHeight;
 
         // Page Break
-        if (currentY + totalItemHeight > PAGE.height - PAGE.margin) {
+        if (currentY + itemBaseHeight > PAGE.height - PAGE.margin - 20) {
             doc.addPage();
             drawHeader();
         }
 
-        // Draw Table Structure
         // Row 1: Descrição
         doc.setDrawColor(COLORS.border);
         doc.setLineWidth(0.1);
-        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7); // Header row box ?
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, tableHeaderHeight);
 
-        // Cells
-        // Col 1 Title
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(COLORS.text);
         doc.text("DESCRIÇÃO:", PAGE.margin + 2, currentY + 5);
 
-        // Col 1 Value
         doc.setTextColor(COLORS.blueText);
         doc.setFont('helvetica', 'normal');
         doc.text(item.component || "", PAGE.margin + 35, currentY + 5);
 
-        currentY += 7;
+        currentY += tableHeaderHeight;
 
         // Row 2: Anomalia
         doc.setTextColor(COLORS.text);
-        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7);
-
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, tableHeaderHeight);
         doc.setFont('helvetica', 'bold');
         doc.text("ANOMALIA:", PAGE.margin + 2, currentY + 5);
 
@@ -217,20 +221,10 @@ export const generatePeritagemPDF = (peritagem, type) => {
         doc.setFont('helvetica', 'normal');
         doc.text(item.anomalies || "", PAGE.margin + 35, currentY + 5);
 
-        // Sidebar for Spec/found (Visual only)
-        doc.setDrawColor(COLORS.border);
-        doc.line(PAGE.margin + 130, currentY, PAGE.margin + 130, currentY + 7); // Vertical split
-        doc.line(PAGE.margin + 160, currentY, PAGE.margin + 160, currentY + 7); // Vertical split 2
-
-        doc.setTextColor(COLORS.text);
-        doc.setFont('helvetica', 'bold');
-        doc.text("Especificado", PAGE.margin + 132, currentY + 5);
-        doc.text("X", PAGE.margin + 170, currentY + 5, { align: 'center' }); // Mocked X
-
-        currentY += 7;
+        currentY += tableHeaderHeight;
 
         // Row 3: Solução
-        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, 7);
+        doc.rect(PAGE.margin, currentY, PAGE.contentWidth, tableHeaderHeight);
         doc.setFont('helvetica', 'bold');
         doc.text("SOLUÇÃO:", PAGE.margin + 2, currentY + 5);
 
@@ -238,42 +232,43 @@ export const generatePeritagemPDF = (peritagem, type) => {
         doc.setFont('helvetica', 'normal');
         doc.text(item.solution || "", PAGE.margin + 35, currentY + 5);
 
-        // Sidebar for Spec/found
-        doc.setDrawColor(COLORS.border);
-        doc.line(PAGE.margin + 130, currentY, PAGE.margin + 130, currentY + 7);
-        doc.line(PAGE.margin + 160, currentY, PAGE.margin + 160, currentY + 7);
+        currentY += tableHeaderHeight + 5;
 
-        doc.setTextColor(COLORS.text);
-        doc.setFont('helvetica', 'bold');
-        doc.text("Encontrado", PAGE.margin + 132, currentY + 5);
-        doc.setTextColor(COLORS.blueText);
-        doc.text("X", PAGE.margin + 170, currentY + 5, { align: 'center' });
-
-        currentY += 10;
-
-        // Photos
+        // Photos Grid (2 per row)
         if (item.photos && item.photos.length > 0) {
-            const photoW = 120;
-            const photoH = 50;
-            const photoX = (PAGE.width - photoW) / 2; // Center
+            item.photos.forEach((photo, pIdx) => {
+                const col = pIdx % 2;
+                const row = Math.floor(pIdx / 2);
 
-            item.photos.forEach((photo) => {
-                if (currentY + photoH > PAGE.height - PAGE.margin) {
+                const xPos = PAGE.margin + (col * (photoWidth + gap));
+                const yPos = currentY;
+
+                // Check if photo fits in current page
+                if (yPos + photoHeight > PAGE.height - PAGE.margin) {
                     doc.addPage();
                     drawHeader();
+                    // After header, reset currentY and yPos for the remaining photos of THIS item
+                    currentY = 110; // Approx Y after header in new page
                 }
-
-                // Red border around photo
-                doc.setDrawColor(COLORS.red);
-                doc.setLineWidth(1);
-                doc.rect(photoX - 1, currentY - 1, photoW + 2, photoH + 2);
 
                 try {
-                    doc.addImage(photo, 'JPEG', photoX, currentY, photoW, photoH);
+                    // Small red border for highlight
+                    doc.setDrawColor(COLORS.red);
+                    doc.setLineWidth(0.5);
+                    doc.rect(xPos, currentY, photoWidth, photoHeight);
+
+                    doc.addImage(photo, 'JPEG', xPos, currentY, photoWidth, photoHeight);
                 } catch (e) {
-                    doc.text("Erro na Imagem", photoX, currentY + 20);
+                    doc.setFontSize(7);
+                    doc.text("Erro ao carregar imagem", xPos + 5, currentY + 20);
                 }
-                currentY += photoH + 5;
+
+                // If it's the second photo in a row, or the last photo, move Y down
+                if (col === 1 || pIdx === item.photos.length - 1) {
+                    if (col === 1 || pIdx === item.photos.length - 1) {
+                        currentY += photoHeight + gap;
+                    }
+                }
             });
         }
 
