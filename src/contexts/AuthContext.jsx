@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
 
             if (data) {
                 const status = (data.status || 'Pendente').toLowerCase();
-                if (status === 'pendente' || status === 'inativo') {
+                if (status === 'pendente' || status === 'inativo' || status === 'aguardando') {
                     console.warn("User status is restricted, signing out...");
                     await supabase.auth.signOut();
                     setUser(null);

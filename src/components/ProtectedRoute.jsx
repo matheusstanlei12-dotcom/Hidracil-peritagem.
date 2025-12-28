@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
 
     const status = (user.status || 'Pendente').toLowerCase();
 
-    if (status === 'pendente' || status === 'inativo') {
+    if (status === 'pendente' || status === 'inativo' || status === 'aguardando') {
         return (
             <div style={{
                 height: '100vh',
