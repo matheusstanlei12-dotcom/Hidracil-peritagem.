@@ -13,6 +13,28 @@ export const getPeritagens = async () => {
     return data || [];
 };
 
+const sendNotification = async (type, peritagem) => {
+    try {
+        console.log(`Triggering notification: ${type} for #${peritagem.id}`);
+        // Fire and forget - don't block the UI
+        supabase.functions.invoke('send-email', {
+            body: {
+                type,
+                data: {
+                    id: peritagem.id,
+                    cliente: peritagem.cliente,
+                    equipamento: peritagem.equipamento,
+                    responsavel: peritagem.responsavel_tecnico || 'N/A'
+                }
+            }
+        }).then(({ error }) => {
+            if (error) console.warn("Email trigger warning:", error);
+        });
+    } catch (e) {
+        console.error("Failed to trigger notification:", e);
+    }
+};
+
 export const savePeritagem = async (peritagem) => {
     console.log("Iniciando salvamento de peritagem...", peritagem);
 
@@ -77,6 +99,12 @@ export const savePeritagem = async (peritagem) => {
     }
 
     console.log("Peritagem salva com sucesso:", data);
+
+    // NOTIFICATION: New Peritagem
+    if (data) {
+        sendNotification('new_peritagem', data);
+    }
+
     return data;
 };
 
@@ -128,6 +156,14 @@ export const updatePeritagem = async (updatedPeritagem) => {
         console.error('Erro ao atualizar peritagem:', error);
         throw error;
     }
+
+    // NOTIFICATION LOGIC
+    if (dataToUpdate.status === 'Aguardando Orçamento') {
+        sendNotification('buyer_finished', { ...dataToUpdate, id });
+    } else if (dataToUpdate.status === 'Orçamento Finalizado') {
+        sendNotification('process_concluded', { ...dataToUpdate, id });
+    }
+
     return data;
 };
 
