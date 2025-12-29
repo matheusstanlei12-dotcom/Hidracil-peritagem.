@@ -20,30 +20,56 @@ export default function Sidebar() {
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
+    const [comprasCount, setComprasCount] = useState(0);
+    const [orcamentoCount, setOrcamentoCount] = useState(0);
 
     const isActive = (path) => location.pathname === path;
 
-    // Fetch pending users count for notification badge
+    // Fetch counts for notifications
     useEffect(() => {
-        const fetchPendingCount = async () => {
+        const fetchCounts = async () => {
+            // 1. Pending Users (Only for Gestor)
             if (user?.role === 'Gestor') {
                 try {
-                    const { count, error } = await supabase
+                    const { count } = await supabase
                         .from('profiles')
                         .select('*', { count: 'exact', head: true })
                         .eq('status', 'Pendente');
-
-                    if (!error) setPendingCount(count || 0);
+                    setPendingCount(count || 0);
                 } catch (err) {
-                    console.error("Error fetching pending count:", err);
+                    console.error("Error fetching pending users:", err);
+                }
+            }
+
+            // 2. Pending Purchaes (Gestor & Comprador)
+            if (user?.role === 'Gestor' || user?.role === 'Comprador') {
+                try {
+                    const { count } = await supabase
+                        .from('peritagens')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'Aguardando Compras');
+                    setComprasCount(count || 0);
+                } catch (err) {
+                    console.error("Error fetching pending purchases:", err);
+                }
+            }
+
+            // 3. Pending Budgets (Gestor & Orçamentista)
+            if (user?.role === 'Gestor' || user?.role === 'Orçamentista') {
+                try {
+                    const { count } = await supabase
+                        .from('peritagens')
+                        .select('*', { count: 'exact', head: true })
+                        .in('status', ['Aguardando Orçamento', 'Custos Inseridos']); // Include 'Custos Inseridos' if that implies ready for budget
+                    setOrcamentoCount(count || 0);
+                } catch (err) {
+                    console.error("Error fetching pending budgets:", err);
                 }
             }
         };
 
-        fetchPendingCount();
-
-        // Polling or Realtime could be added here, but simple fetch for now
-        const interval = setInterval(fetchPendingCount, 60000); // Every minute
+        fetchCounts();
+        const interval = setInterval(fetchCounts, 30000); // 30s polling
         return () => clearInterval(interval);
     }, [user]);
 
@@ -133,6 +159,34 @@ export default function Sidebar() {
                                     marginLeft: '0.5rem'
                                 }}>
                                     {pendingCount}
+                                </span>
+                            )}
+
+                            {item.label === 'Aguardando Compras' && comprasCount > 0 && (
+                                <span style={{
+                                    backgroundColor: '#d35400',
+                                    color: 'white',
+                                    borderRadius: '10px',
+                                    padding: '0.1rem 0.5rem',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    marginLeft: '0.5rem'
+                                }}>
+                                    {comprasCount}
+                                </span>
+                            )}
+
+                            {item.label === 'Aguardando Orçamento' && orcamentoCount > 0 && (
+                                <span style={{
+                                    backgroundColor: '#d35400',
+                                    color: 'white',
+                                    borderRadius: '10px',
+                                    padding: '0.1rem 0.5rem',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    marginLeft: '0.5rem'
+                                }}>
+                                    {orcamentoCount}
                                 </span>
                             )}
                         </Link>
