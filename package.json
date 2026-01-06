@@ -8,9 +8,14 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android-build": "npm run build && npx cap sync",
+    "android-open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@supabase/supabase-js": "^2.89.0",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",

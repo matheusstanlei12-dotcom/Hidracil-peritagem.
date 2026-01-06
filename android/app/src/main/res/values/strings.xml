@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hidracil</string>
+    <string name="title_activity_main">Hidracil</string>
+    <string name="package_name">com.hidracil.app</string>
+    <string name="custom_url_scheme">com.hidracil.app</string>
+</resources>
