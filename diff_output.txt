@@ -1,0 +1,79 @@
+﻿diff --git a/src/App.jsx b/src/App.jsx
+index b5e325b..08497c8 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -48,10 +48,10 @@ function App() {
+             <Route path="/" element={<Dashboard />} />
+             <Route path="/peritagens" element={<PeritagemList />} />
+             <Route path="/peritagem/:id" element={<PeritagemDetails />} />
+-            <Route path="/timeline" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'Or├ºamentista']}><Timeline /></ProtectedRoute>} />
++            <Route path="/timeline" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'Or├ºamentista', 'PCP']}><Timeline /></ProtectedRoute>} />
+             <Route path="/nova-peritagem" element={<ProtectedRoute allowedRoles={['Gestor', 'Perito']}><NewPeritagem /></ProtectedRoute>} />
+-            <Route path="/pendentes-compras" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador']}><PendingPurchases /></ProtectedRoute>} />
+-            <Route path="/pendentes-orcamento" element={<ProtectedRoute allowedRoles={['Gestor', 'Or├ºamentista']}><PendingBudget /></ProtectedRoute>} />
++            <Route path="/pendentes-compras" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'PCP']}><PendingPurchases /></ProtectedRoute>} />
++            <Route path="/pendentes-orcamento" element={<ProtectedRoute allowedRoles={['Gestor', 'Or├ºamentista', 'PCP']}><PendingBudget /></ProtectedRoute>} />
+             <Route path="/relatorios" element={<Reports />} />
+             <Route path="/usuarios" element={<ProtectedRoute allowedRoles={['Gestor']}><UserList /></ProtectedRoute>} />
+           </Route>
+diff --git a/src/components/Sidebar.jsx b/src/components/Sidebar.jsx
+index 48406fd..b18aea7 100644
+--- a/src/components/Sidebar.jsx
++++ b/src/components/Sidebar.jsx
+@@ -74,13 +74,13 @@ export default function Sidebar() {
+     }, [user]);
+ 
+     const menuItems = [
+-        { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Or├ºamentista'] },
+-        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Or├ºamentista'] },
+-        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Or├ºamentista'] },
++        { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Or├ºamentista', 'PCP'] },
++        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Or├ºamentista', 'PCP'] },
++        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Or├ºamentista', 'PCP'] },
+         { label: 'Nova Peritagem', path: '/nova-peritagem', icon: PlusCircle, roles: ['Gestor', 'Perito'] },
+-        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador'] },
+-        { label: 'Aguardando Or├ºamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Or├ºamentista'] },
+-        { label: 'Relat├│rios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Or├ºamentista'] },
++        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador', 'PCP'] },
++        { label: 'Aguardando Or├ºamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Or├ºamentista', 'PCP'] },
++        { label: 'Relat├│rios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Or├ºamentista', 'PCP'] },
+         { label: 'Gest├úo de Usu├írios', path: '/usuarios', icon: Users, roles: ['Gestor'] },
+     ];
+ 
+diff --git a/src/pages/PeritagemDetails.jsx b/src/pages/PeritagemDetails.jsx
+index 4844396..634a972 100644
+--- a/src/pages/PeritagemDetails.jsx
++++ b/src/pages/PeritagemDetails.jsx
+@@ -105,15 +105,15 @@ export default function PeritagemDetails() {
+ 
+     if (loading || !peritagem) return <div>Carregando...</div>;
+ 
+-    const isComprador = user?.role === 'Comprador' || user?.role === 'Gestor';
+-    const isOrcamentista = user?.role === 'Or├ºamentista' || user?.role === 'Gestor';
++    const isComprador = user?.role === 'Comprador' || user?.role === 'Gestor' || user?.role === 'PCP';
++    const isOrcamentista = user?.role === 'Or├ºamentista' || user?.role === 'Gestor' || user?.role === 'PCP';
+ 
+     // Logic for editability
+-    const canEditPurchases = isComprador && peritagem.status === 'Aguardando Compras';
+-    const canEditBudget = isOrcamentista && (peritagem.status === 'Aguardando Or├ºamento' || peritagem.status === 'Custos Inseridos' || peritagem.status === 'Aguardando Compras'); // Fallback allowing edits if flow slightly off
++    const canEditPurchases = (user?.role === 'Comprador' || user?.role === 'Gestor') && peritagem.status === 'Aguardando Compras';
++    const canEditBudget = (user?.role === 'Or├ºamentista' || user?.role === 'Gestor') && (peritagem.status === 'Aguardando Or├ºamento' || peritagem.status === 'Custos Inseridos' || peritagem.status === 'Aguardando Compras'); // Fallback allowing edits if flow slightly off
+ 
+     // Strict flow check
+-    const showPurchaseInputs = peritagem.status === 'Aguardando Compras' || (peritagem.stage_index >= 2 && user?.role === 'Gestor');
++    const showPurchaseInputs = peritagem.status === 'Aguardando Compras' || (peritagem.stage_index >= 2 && (user?.role === 'Gestor' || user?.role === 'PCP'));
+     const showBudgetInputs = peritagem.status === 'Aguardando Or├ºamento' || peritagem.status === 'Or├ºamento Finalizado' || (peritagem.stage_index >= 4);
+ 
+     return (
+diff --git a/src/pages/Register.jsx b/src/pages/Register.jsx
+index 6a0e6c6..993601b 100644
+--- a/src/pages/Register.jsx
++++ b/src/pages/Register.jsx
+@@ -102,6 +102,7 @@ export default function Register() {
+                             <option value="Perito">Perito</option>
+                             <option value="Comprador">Comprador</option>
+                             <option value="Or├ºamentista">Or├ºamentista</option>
++                            <option value="PCP">PCP</option>
+                             <option value="Gestor">Gestor</option>
+                         </select>
+                     </div>

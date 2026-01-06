@@ -74,13 +74,13 @@ export default function Sidebar() {
     }, [user]);
 
     const menuItems = [
-        { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista'] },
-        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista'] },
-        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Orçamentista'] },
+        { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
+        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
+        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'] },
         { label: 'Nova Peritagem', path: '/nova-peritagem', icon: PlusCircle, roles: ['Gestor', 'Perito'] },
-        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador'] },
-        { label: 'Aguardando Orçamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Orçamentista'] },
-        { label: 'Relatórios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Orçamentista'] },
+        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador', 'PCP'] },
+        { label: 'Aguardando Orçamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Orçamentista', 'PCP'] },
+        { label: 'Relatórios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'] },
         { label: 'Gestão de Usuários', path: '/usuarios', icon: Users, roles: ['Gestor'] },
     ];
 

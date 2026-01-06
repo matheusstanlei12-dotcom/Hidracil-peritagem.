@@ -105,15 +105,15 @@ export default function PeritagemDetails() {
 
     if (loading || !peritagem) return <div>Carregando...</div>;
 
-    const isComprador = user?.role === 'Comprador' || user?.role === 'Gestor';
-    const isOrcamentista = user?.role === 'Orçamentista' || user?.role === 'Gestor';
+    const isComprador = user?.role === 'Comprador' || user?.role === 'Gestor' || user?.role === 'PCP';
+    const isOrcamentista = user?.role === 'Orçamentista' || user?.role === 'Gestor' || user?.role === 'PCP';
 
     // Logic for editability
-    const canEditPurchases = isComprador && peritagem.status === 'Aguardando Compras';
-    const canEditBudget = isOrcamentista && (peritagem.status === 'Aguardando Orçamento' || peritagem.status === 'Custos Inseridos' || peritagem.status === 'Aguardando Compras'); // Fallback allowing edits if flow slightly off
+    const canEditPurchases = (user?.role === 'Comprador' || user?.role === 'Gestor') && peritagem.status === 'Aguardando Compras';
+    const canEditBudget = (user?.role === 'Orçamentista' || user?.role === 'Gestor') && (peritagem.status === 'Aguardando Orçamento' || peritagem.status === 'Custos Inseridos' || peritagem.status === 'Aguardando Compras'); // Fallback allowing edits if flow slightly off
 
     // Strict flow check
-    const showPurchaseInputs = peritagem.status === 'Aguardando Compras' || (peritagem.stage_index >= 2 && user?.role === 'Gestor');
+    const showPurchaseInputs = peritagem.status === 'Aguardando Compras' || (peritagem.stage_index >= 2 && (user?.role === 'Gestor' || user?.role === 'PCP'));
     const showBudgetInputs = peritagem.status === 'Aguardando Orçamento' || peritagem.status === 'Orçamento Finalizado' || (peritagem.stage_index >= 4);
 
     return (

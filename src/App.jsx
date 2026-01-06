@@ -48,10 +48,10 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/peritagens" element={<PeritagemList />} />
             <Route path="/peritagem/:id" element={<PeritagemDetails />} />
-            <Route path="/timeline" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'Orçamentista']}><Timeline /></ProtectedRoute>} />
+            <Route path="/timeline" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'Orçamentista', 'PCP']}><Timeline /></ProtectedRoute>} />
             <Route path="/nova-peritagem" element={<ProtectedRoute allowedRoles={['Gestor', 'Perito']}><NewPeritagem /></ProtectedRoute>} />
-            <Route path="/pendentes-compras" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador']}><PendingPurchases /></ProtectedRoute>} />
-            <Route path="/pendentes-orcamento" element={<ProtectedRoute allowedRoles={['Gestor', 'Orçamentista']}><PendingBudget /></ProtectedRoute>} />
+            <Route path="/pendentes-compras" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'PCP']}><PendingPurchases /></ProtectedRoute>} />
+            <Route path="/pendentes-orcamento" element={<ProtectedRoute allowedRoles={['Gestor', 'Orçamentista', 'PCP']}><PendingBudget /></ProtectedRoute>} />
             <Route path="/relatorios" element={<Reports />} />
             <Route path="/usuarios" element={<ProtectedRoute allowedRoles={['Gestor']}><UserList /></ProtectedRoute>} />
           </Route>
