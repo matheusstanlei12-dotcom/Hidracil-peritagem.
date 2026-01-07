@@ -22,6 +22,7 @@ const COMPONENT_OPTIONS = [
 export default function NewPeritagem() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (user && user.role !== 'Perito' && user.role !== 'Gestor') {
@@ -133,7 +134,10 @@ export default function NewPeritagem() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSaving) return;
+
         try {
+            setIsSaving(true);
             const cleanData = {
                 ...formData,
                 items,
@@ -143,8 +147,10 @@ export default function NewPeritagem() {
             await savePeritagem(cleanData);
             navigate('/peritagens');
         } catch (error) {
-            console.error('Erro ao salvar peritagem:', error);
-            alert(`Erro ao salvar peritagem: ${error.message || 'Erro desconhecido'}`);
+            console.error('Erro detalhado ao salvar peritagem:', error);
+            alert(`Erro ao salvar peritagem: ${error.message || 'Verifique sua conexão e tente novamente.'}`);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -432,17 +438,20 @@ export default function NewPeritagem() {
                         </button>
                         <button
                             type="submit"
+                            disabled={isSaving}
                             style={{
-                                backgroundColor: '#006945', // Brand Green
+                                backgroundColor: isSaving ? '#999' : '#006945', // Brand Green
                                 color: 'white',
                                 border: 'none',
                                 padding: '0.6rem 2rem',
                                 borderRadius: '4px',
                                 fontWeight: '600',
-                                fontSize: '0.9rem'
+                                fontSize: '0.9rem',
+                                opacity: isSaving ? 0.7 : 1,
+                                cursor: isSaving ? 'not-allowed' : 'pointer'
                             }}
                         >
-                            Finalizar Peritagem
+                            {isSaving ? 'Salvando...' : 'Finalizar Peritagem'}
                         </button>
                     </div>
 

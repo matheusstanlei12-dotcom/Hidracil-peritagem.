@@ -61,20 +61,23 @@ export const savePeritagem = async (peritagem) => {
     }
 
     // AUTO-FIX: Garantir que o perfil existe antes de salvar (evita erro de chave estrangeira)
+    console.log("Verificando/Criando perfil para ID:", userId);
     try {
-        const { data: profile } = await supabase.from('profiles').select('id').eq('id', userId).single();
-        if (!profile) {
-            console.log("Perfil não encontrado, criando entrada básica para evitar erro de FK...");
-            await supabase.from('profiles').insert([{
-                id: userId,
-                email: session?.user?.email || 'teste@teste.com',
-                name: session?.user?.user_metadata?.name || 'Usuário de Teste',
-                role: session?.user?.user_metadata?.role || 'Perito',
-                status: 'Ativo'
-            }]);
+        const { error: profileError } = await supabase.from('profiles').upsert([{
+            id: userId,
+            email: session?.user?.email || 'teste@teste.com',
+            name: session?.user?.user_metadata?.name || 'Usuário de Teste',
+            role: session?.user?.user_metadata?.role || 'Perito',
+            status: 'Ativo'
+        }], { onConflict: 'id' });
+
+        if (profileError) {
+            console.warn("Aviso ao garantir perfil (pode ser RLS restringindo Upsert):", profileError);
+        } else {
+            console.log("Perfil garantido com sucesso.");
         }
     } catch (e) {
-        console.warn("Erro ao verificar/criar perfil preventivo:", e);
+        console.warn("Erro ao executar upsert de perfil preventivo:", e);
     }
 
     // Basic validation
