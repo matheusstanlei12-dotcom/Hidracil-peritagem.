@@ -72,7 +72,7 @@ export default function NewPeritagem() {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
 
-    const compressImage = (base64Str, maxWidth = 1200, maxHeight = 1200) => {
+    const compressImage = (base64Str, maxWidth = 1000, maxHeight = 1000) => {
         return new Promise((resolve) => {
             const img = new Image();
             img.src = base64Str;
@@ -97,7 +97,7 @@ export default function NewPeritagem() {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 quality is a great balance
+                resolve(canvas.toDataURL('image/jpeg', 0.5)); // High compression for fast mobile upload
             };
         });
     };

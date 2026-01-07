@@ -60,33 +60,23 @@ export const savePeritagem = async (peritagem) => {
         throw new Error("Sessão expirada ou usuário não autenticado. Faça login novamente.");
     }
 
-    // AUTO-FIX: Garantir que o perfil existe antes de salvar (evita erro de chave estrangeira)
-    console.log("Verificando/Criando perfil para ID:", userId);
-    try {
-        const { error: profileError } = await supabase.from('profiles').upsert([{
-            id: userId,
-            email: session?.user?.email || 'teste@teste.com',
-            name: session?.user?.user_metadata?.name || 'Usuário de Teste',
-            role: session?.user?.user_metadata?.role || 'Perito',
-            status: 'Ativo'
-        }], { onConflict: 'id' });
-
-        if (profileError) {
-            console.warn("Aviso ao garantir perfil (pode ser RLS restringindo Upsert):", profileError);
-        } else {
-            console.log("Perfil garantido com sucesso.");
-        }
-    } catch (e) {
-        console.warn("Erro ao executar upsert de perfil preventivo:", e);
-    }
+    // AUTO-FIX: Garantir que o perfil existe (Fire and Forget - Não trava o salvamento principal)
+    console.log("Garantindo perfil em segundo plano para ID:", userId);
+    supabase.from('profiles').upsert([{
+        id: userId,
+        email: session?.user?.email || 'teste@teste.com',
+        name: session?.user?.user_metadata?.name || 'Usuário de Teste',
+        role: session?.user?.user_metadata?.role || 'Perito',
+        status: 'Ativo'
+    }], { onConflict: 'id' }).then(({ error }) => {
+        if (error) console.warn("Aviso ao garantir perfil:", error);
+    });
 
     // Basic validation
     if (!peritagem.items || peritagem.items.length === 0) {
-
-        // Allow saving without items? Maybe warn.
+        // ...
     }
 
-    // Convert property names if they differ from DB snake_case (optional, but good practice)
     const peritagemData = {
         orcamento: peritagem.orcamento,
         cliente: peritagem.cliente,
@@ -106,27 +96,30 @@ export const savePeritagem = async (peritagem) => {
         created_by: userId
     };
 
-    console.log("Payload preparado para envio:", peritagemData);
+    console.log("Iniciando insert no Supabase...");
 
-    const { data, error } = await supabase
-        .from('peritagens')
-        .insert([peritagemData])
-        .select()
-        .single();
+    // Database Insert with selective result handling
+    const result = await Promise.race([
+        supabase.from('peritagens').insert([peritagemData]).select(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout ao conectar com o servidor (30s). Verifique sua internet.")), 30000))
+    ]);
+
+    const { data: insertedData, error } = result;
 
     if (error) {
-        console.error('Erro detalhado do Supabase:', error);
-        throw new Error(`Erro ao salvar no banco de dados: ${error.message || error.details}`);
+        console.error('Erro ao inserir peritagem:', error);
+        throw new Error(`Erro no banco de dados: ${error.message}`);
     }
 
-    console.log("Peritagem salva com sucesso:", data);
+    const savedRecord = Array.isArray(insertedData) ? insertedData[0] : insertedData;
+    console.log("Peritagem salva com sucesso:", savedRecord);
 
     // NOTIFICATION: New Peritagem
-    if (data) {
-        sendNotification('new_peritagem', data);
+    if (savedRecord) {
+        sendNotification('new_peritagem', savedRecord);
     }
 
-    return data;
+    return savedRecord;
 };
 
 export const updatePeritagemStatus = async (id, newStageIndex, newStatus) => {
