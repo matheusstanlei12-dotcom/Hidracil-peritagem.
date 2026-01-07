@@ -60,8 +60,26 @@ export const savePeritagem = async (peritagem) => {
         throw new Error("Sessão expirada ou usuário não autenticado. Faça login novamente.");
     }
 
+    // AUTO-FIX: Garantir que o perfil existe antes de salvar (evita erro de chave estrangeira)
+    try {
+        const { data: profile } = await supabase.from('profiles').select('id').eq('id', userId).single();
+        if (!profile) {
+            console.log("Perfil não encontrado, criando entrada básica para evitar erro de FK...");
+            await supabase.from('profiles').insert([{
+                id: userId,
+                email: session?.user?.email || 'teste@teste.com',
+                name: session?.user?.user_metadata?.name || 'Usuário de Teste',
+                role: session?.user?.user_metadata?.role || 'Perito',
+                status: 'Ativo'
+            }]);
+        }
+    } catch (e) {
+        console.warn("Erro ao verificar/criar perfil preventivo:", e);
+    }
+
     // Basic validation
     if (!peritagem.items || peritagem.items.length === 0) {
+
         // Allow saving without items? Maybe warn.
     }
 

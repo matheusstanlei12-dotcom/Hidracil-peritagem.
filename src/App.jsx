@@ -22,8 +22,11 @@ import Reports from './pages/Reports';
 const Placeholder = ({ title }) => <div style={{ padding: '20px' }}><h1>{title}</h1><p>Em desenvolvimento...</p></div>;
 
 import { useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 function App() {
+  const isAndroid = Capacitor.getPlatform() === 'android';
+
   useEffect(() => {
     // Force title
     document.title = "Hidracil - Sistema de Peritagem";
@@ -45,8 +48,9 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={isAndroid ? <PeritagemList /> : <Dashboard />} />
             <Route path="/peritagens" element={<PeritagemList />} />
+
             <Route path="/peritagem/:id" element={<PeritagemDetails />} />
             <Route path="/timeline" element={<ProtectedRoute allowedRoles={['Gestor', 'Comprador', 'Orçamentista', 'PCP']}><Timeline /></ProtectedRoute>} />
             <Route path="/nova-peritagem" element={<ProtectedRoute allowedRoles={['Gestor', 'Perito']}><NewPeritagem /></ProtectedRoute>} />

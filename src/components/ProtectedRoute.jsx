@@ -1,8 +1,13 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Capacitor } from '@capacitor/core';
 
 export default function ProtectedRoute({ children, allowedRoles }) {
     const { user, loading } = useAuth();
+    const location = useLocation();
+
+    const isAndroid = Capacitor.getPlatform() === 'android';
+    const allowedAndroidPaths = ['/', '/peritagens', '/nova-peritagem', '/peritagem'];
 
     if (loading) {
         return <div>Carregando...</div>;
@@ -11,6 +16,17 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     if (!user) {
         return <Navigate to="/login" replace />;
     }
+
+    // Trava para Android (APK)
+    if (isAndroid) {
+        const isPathAllowed = allowedAndroidPaths.some(path =>
+            location.pathname === path || location.pathname.startsWith('/peritagem/')
+        );
+        if (!isPathAllowed) {
+            return <Navigate to="/" replace />;
+        }
+    }
+
 
     const status = (user.status || 'Pendente').toLowerCase();
 

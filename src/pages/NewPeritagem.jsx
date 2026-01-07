@@ -263,7 +263,6 @@ export default function NewPeritagem() {
                                                 onChange={(e) => updateItem(item.id, 'component', e.target.value)}
                                                 className="form-input"
                                                 required
-                                                style={{ height: '5rem' }} // Taller for multiline feel if needed, aligned with textareas
                                             >
                                                 <option value="">Selecione...</option>
                                                 {COMPONENT_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -292,8 +291,8 @@ export default function NewPeritagem() {
                                     </div>
 
                                     {/* Action Buttons for Photos */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <div className="photo-upload-container" style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        <div className="photo-upload-container" style={{ display: 'flex', gap: '0.75rem' }}>
                                             {/* Camera Button */}
                                             <div style={{ flex: 1 }}>
                                                 <input
@@ -410,7 +409,7 @@ export default function NewPeritagem() {
                                 cursor: 'pointer'
                             }}
                         >
-                            Adicionar Solução
+                            Adicionar Componente
                         </button>
                     </div>
 

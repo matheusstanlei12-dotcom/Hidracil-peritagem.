@@ -139,11 +139,11 @@ export default function PeritagemDetails() {
                     </button>
                 </div>
 
-                <div style={{ padding: '2rem' }}>
+                <div className="details-content" style={{ padding: '2rem' }}>
                     {/* Identificação (ReadOnly) */}
                     <div style={{ marginBottom: '2rem', opacity: 0.8 }}>
                         <h3 style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '1rem' }}>Identificação</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
+                        <div className="grid-responsive-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
                             <div className="field-group">
                                 <label>Cliente</label>
                                 <div className="read-only-field">{peritagem.cliente}</div>
@@ -165,7 +165,7 @@ export default function PeritagemDetails() {
                                 <div key={item.id} style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1.5rem', backgroundColor: '#FAFAFA' }}>
 
                                     {/* Perito Data (Always Visible) */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                    <div className="grid-responsive-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                                         <div>
                                             <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#555' }}>Componente</label>
                                             <div className="read-only-field">{item.component}</div>
@@ -190,7 +190,7 @@ export default function PeritagemDetails() {
                                             borderLeft: '4px solid #4CAF50'
                                         }}>
                                             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#2E7D32', marginBottom: '0.5rem' }}>DADOS DE COMPRAS</div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '1rem' }}>
+                                            <div className="grid-responsive-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '1rem' }}>
                                                 <div>
                                                     <label style={{ fontSize: '0.8rem' }}>Custo (R$)</label>
                                                     <input
@@ -238,7 +238,7 @@ export default function PeritagemDetails() {
                                             borderLeft: '4px solid #FFC107'
                                         }}>
                                             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#F57F17', marginBottom: '0.5rem' }}>ORÇAMENTO</div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div className="grid-responsive-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                                 <div>
                                                     <label style={{ fontSize: '0.8rem' }}>Preço de Venda (R$)</label>
                                                     <input
@@ -268,7 +268,7 @@ export default function PeritagemDetails() {
                     </div>
 
                     {/* ACTIONS footer */}
-                    <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                    <div className="actions-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 
                         {/* Comprador Actions */}
                         {canEditPurchases && (
@@ -347,6 +347,34 @@ export default function PeritagemDetails() {
                     cursor: pointer;
                     font-size: 0.8rem;
                     box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
+                }
+
+                @media (max-width: 768px) {
+                    .details-content {
+                        padding: 1rem !important;
+                    }
+                    .grid-responsive-2, .grid-responsive-3 {
+                        grid-template-columns: 1fr !important;
+                        gap: 1.5rem !important;
+                    }
+                    .actions-footer {
+                        flex-direction: column !important;
+                        align-items: stretch !important;
+                    }
+                    .actions-footer > div {
+                        flex-direction: column !important;
+                        width: 100% !important;
+                    }
+                    .btn-pdf, .btn-pdf-primary {
+                        width: 100% !important;
+                        padding: 1rem !important;
+                        font-size: 0.9rem !important;
+                    }
+                    .read-only-field {
+                        min-height: 40px;
+                        display: flex;
+                        align-items: center;
+                    }
                 }
             `}</style>
         </div>

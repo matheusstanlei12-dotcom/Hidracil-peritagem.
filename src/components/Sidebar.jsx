@@ -14,6 +14,10 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { Capacitor } from '@capacitor/core';
+
+const APP_VERSION = "2.1.2 - Hidracil Build";
+
 
 export default function Sidebar() {
     const { user, logout } = useAuth();
@@ -73,18 +77,31 @@ export default function Sidebar() {
         return () => clearInterval(interval);
     }, [user]);
 
+    const isAndroid = Capacitor.getPlatform() === 'android';
+
     const menuItems = [
-        { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
-        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
-        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'] },
+        { label: isAndroid ? 'Minhas Peritagens' : 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
+        { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
+        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
         { label: 'Nova Peritagem', path: '/nova-peritagem', icon: PlusCircle, roles: ['Gestor', 'Perito'] },
-        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador', 'PCP'] },
-        { label: 'Aguardando Orçamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Orçamentista', 'PCP'] },
-        { label: 'Relatórios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'] },
-        { label: 'Gestão de Usuários', path: '/usuarios', icon: Users, roles: ['Gestor'] },
+        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador', 'PCP'], hideOnAndroid: true },
+        { label: 'Aguardando Orçamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Orçamentista', 'PCP'], hideOnAndroid: true },
+        { label: 'Relatórios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
+        { label: 'Gestão de Usuários', path: '/usuarios', icon: Users, roles: ['Gestor'], hideOnAndroid: true },
     ];
 
-    const filteredItems = menuItems.filter(item => !item.roles || item.roles.includes(user?.role));
+    const filteredItems = menuItems.filter(item => {
+        const roleAllowed = !item.roles || item.roles.includes(user?.role);
+        if (isAndroid) {
+            // Em Android, só permite o que não está escondido e remove o que não é Dashboard/Nova
+            // Na verdade, o dashboard serve como "Minhas Peritagens" na home se configurarmos, 
+            // ou redirecionamos para /peritagens. 
+            // O usuário pediu: "gerar nova peritagem e ver minhas peritagens apenas"
+            return roleAllowed && !item.hideOnAndroid;
+        }
+        return roleAllowed;
+    });
+
 
     const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -249,7 +266,20 @@ export default function Sidebar() {
                         <LogOut size={14} style={{ marginRight: '0.4rem' }} />
                         Sair
                     </button>
+
+                    {/* Version & Diagnosis */}
+                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.65rem', color: '#999', fontWeight: 'bold' }}>
+                            {APP_VERSION}
+                        </div>
+                        {user?.role === 'Gestor' && (
+                            <div style={{ fontSize: '0.55rem', color: '#ccc', marginTop: '0.2rem', wordBreak: 'break-all' }}>
+                                DB: {import.meta.env.VITE_SUPABASE_URL}
+                            </div>
+                        )}
+                    </div>
                 </div>
+
             </div>
 
             {/* Mobile Overlay */}
