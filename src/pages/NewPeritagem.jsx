@@ -145,6 +145,7 @@ export default function NewPeritagem() {
                 stage_index: 2, // 2 = Aguardando Compras
             };
             await savePeritagem(cleanData);
+            window.alert('Peritagem salva com sucesso!');
             navigate('/peritagens');
         } catch (error) {
             console.error('Erro detalhado ao salvar peritagem:', error);

@@ -79,7 +79,8 @@ export default function PeritagemList() {
                 />
             </div>
 
-            <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)', overflowX: 'auto' }}>
+            {/* Desktop Table View */}
+            <div className="desktop-view" style={{ backgroundColor: 'var(--color-surface)', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)', overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                     <thead style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
                         <tr>
@@ -118,15 +119,56 @@ export default function PeritagemList() {
                                 </td>
                             </tr>
                         ))}
-                        {!loading && filtered.length === 0 && (
-                            <tr>
-                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                                    Nenhuma peritagem encontrada.
-                                </td>
-                            </tr>
-                        )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-view" style={{ display: 'none', flexDirection: 'column', gap: '1rem' }}>
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>Carregando...</div>
+                ) : filtered.map((item) => (
+                    <div key={item.id} style={{
+                        backgroundColor: 'var(--color-surface)',
+                        borderRadius: 'var(--border-radius-md)',
+                        padding: '1rem',
+                        boxShadow: 'var(--shadow-sm)',
+                        border: '1px solid var(--color-border)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                            <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>#{item.id.slice(0, 8)}</span>
+                            <span style={{ fontSize: '0.8rem', color: '#666' }}>{new Date(item.date || item.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <div style={{ marginBottom: '1rem' }}>
+                            <div style={{ fontSize: '0.75rem', color: '#999', textTransform: 'uppercase' }}>Cliente</div>
+                            <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{item.cliente}</div>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{
+                                backgroundColor: item.status === 'Orçamento Finalizado' ? 'rgba(46, 204, 113, 0.2)' : 'rgba(244, 208, 63, 0.2)',
+                                color: item.status === 'Orçamento Finalizado' ? 'var(--color-success)' : '#d4ac0d',
+                                padding: '0.25rem 0.6rem',
+                                borderRadius: '12px',
+                                fontSize: '0.7rem',
+                                fontWeight: '700'
+                            }}>
+                                {item.status}
+                            </span>
+                            <Link to={`/peritagem/${item.id}`} style={{
+                                backgroundColor: 'var(--color-primary)',
+                                color: 'white',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '4px',
+                                textDecoration: 'none',
+                                fontSize: '0.8rem',
+                                fontWeight: 'bold'
+                            }}>ABRIR</Link>
+                        </div>
+                    </div>
+                ))}
+                {!loading && filtered.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#999' }}>Nenhuma peritagem encontrada.</div>
+                )}
             </div>
 
             <style>{`
@@ -142,6 +184,12 @@ export default function PeritagemList() {
                     }
                     .list-container h1 {
                         font-size: 1.25rem !important;
+                    }
+                    .desktop-view {
+                        display: none !important;
+                    }
+                    .mobile-view {
+                        display: flex !important;
                     }
                 }
             `}</style>
