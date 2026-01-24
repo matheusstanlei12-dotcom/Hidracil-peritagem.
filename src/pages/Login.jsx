@@ -41,7 +41,7 @@ export default function Login() {
                 maxWidth: '400px',
                 textAlign: 'center'
             }}>
-                <img src="/logo.png" alt="HIDRACIL Logo" style={{ maxWidth: '200px', marginBottom: '1.5rem' }} />
+                <img src="/logo.png" alt="Trust Tecnologia" style={{ maxWidth: '200px', marginBottom: '1.5rem' }} />
                 <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--color-text-secondary)' }}>ACESSO AO SISTEMA</h2>
 
                 {successMessage && <div style={{ color: 'var(--color-success)', marginBottom: '1rem', backgroundColor: '#d4edda', padding: '0.75rem', borderRadius: '4px', border: '1px solid #c3e6cb', fontSize: '0.9rem' }}>{successMessage}</div>}

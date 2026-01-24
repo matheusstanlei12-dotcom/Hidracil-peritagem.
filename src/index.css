@@ -1,8 +1,8 @@
 :root {
   /* Brand Colors */
-  --color-primary: #1A7F3C;
-  --color-primary-hover: #14612e;
-  
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+
   /* Status Colors */
   --color-success: #2ECC71;
   --color-warning: #F4D03F;
@@ -18,13 +18,13 @@
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  
+
   /* Spacing & Layout */
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -51,7 +51,9 @@ button {
   cursor: pointer;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: inherit;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
@@ -60,7 +62,12 @@ input, select, textarea {
   border-radius: var(--border-radius-sm);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   color: var(--color-text-primary);
 }

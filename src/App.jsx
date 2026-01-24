@@ -12,6 +12,7 @@ import PeritagemList from './pages/PeritagemList';
 import PeritagemDetails from './pages/PeritagemDetails';
 import NewPeritagem from './pages/NewPeritagem';
 import UserList from './pages/UserList';
+import SimulationSetup from './pages/SimulationSetup';
 
 import PendingPurchases from './pages/PendingPurchases';
 import PendingBudget from './pages/PendingBudget';
@@ -29,7 +30,7 @@ function App() {
 
   useEffect(() => {
     // Force title
-    document.title = "Hidracil - Sistema de Peritagem";
+    document.title = "Trust Tecnologia";
 
     // Force Favicon refresh (cache busting)
     const link = document.querySelector("link[rel~='icon']");
@@ -45,6 +46,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/simulation" element={<SimulationSetup />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>

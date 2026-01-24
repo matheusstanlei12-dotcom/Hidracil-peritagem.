@@ -151,11 +151,11 @@ export default function Dashboard() {
                 />
             </div>
 
-            {/* Charts Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+            {/* Charts Grid - Stacked Vertically */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '1.5rem' }}>
 
                 {/* Bar Chart: Clients */}
-                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
                     <h3 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Peritagens por Cliente (Top 5)</h3>
                     <div style={{ height: '200px', display: 'flex', alignItems: 'end', gap: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
                         {stats.porCliente.length > 0 ? (
@@ -169,7 +169,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Donut Chart: Status */}
-                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <h3 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Distribuição por Status</h3>
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <DonutChart stats={stats.porStatus} />
@@ -224,14 +224,43 @@ function KpiCard({ title, value, icon, color, onClick }) {
     );
 }
 
-function Bar({ label, height }) {
+function Bar({ label, height, color }) {
     return (
-        <div style={{ flex: 1, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', cursor: 'pointer' }}>
-            <div style={{ height: height, backgroundColor: 'var(--color-primary)', borderRadius: '4px 4px 0 0', width: '100%', opacity: 0.8, transition: 'opacity 0.2s' }}
-                onMouseOver={(e) => e.target.style.opacity = 1}
-                onMouseOut={(e) => e.target.style.opacity = 0.8}
+        <div style={{ flex: 1, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', cursor: 'pointer' }}>
+            <div style={{
+                height: height,
+                backgroundColor: color || '#22c55e', // Green default
+                borderRadius: '6px 6px 0 0',
+                width: '70%',
+                maxWidth: '40px',
+                minHeight: '4px',
+                opacity: 0.85,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative'
+            }}
+                onMouseOver={(e) => {
+                    e.currentTarget.style.opacity = 1;
+                    e.currentTarget.style.transform = 'scaleY(1.05)';
+                    e.currentTarget.style.transformOrigin = 'bottom';
+                }}
+                onMouseOut={(e) => {
+                    e.currentTarget.style.opacity = 0.85;
+                    e.currentTarget.style.transform = 'scaleY(1)';
+                }}
             ></div>
-            <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontWeight: 'bold', color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</div>
+            <div style={{
+                marginTop: '0.5rem',
+                fontSize: '0.7rem',
+                fontWeight: '600',
+                color: '#4B5563',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                width: '100%',
+                padding: '0 2px'
+            }} title={label}>
+                {label}
+            </div>
         </div>
     )
 }
@@ -239,8 +268,8 @@ function Bar({ label, height }) {
 function DonutChart({ stats }) {
     // Simple pure CSS/SVG Donut
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            <div style={{ position: 'relative', width: '150px', height: '150px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4rem', width: '100%', padding: '1rem' }}>
+            <div style={{ position: 'relative', width: '260px', height: '260px', flexShrink: 0 }}>
                 <svg viewBox="0 0 36 36" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
                     <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" strokeWidth="4" />
 
@@ -262,23 +291,23 @@ function DonutChart({ stats }) {
                         strokeDashoffset={`-${(stats?.finalizados || 0) + (stats?.emAndamento || 0)}`} />
                 </svg>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats?.total || 0}</span>
-                    <span style={{ fontSize: '0.7rem', color: '#666' }}>Total</span>
+                    <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#374151' }}>{stats?.total || 0}</span>
+                    <span style={{ fontSize: '1rem', color: '#9CA3AF', fontWeight: '500' }}>Total</span>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--color-success)' }}></div>
-                    <span>Finalizados ({stats?.finalizados || 0}%)</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '1.1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--color-success)' }}></div>
+                    <span style={{ color: '#4B5563' }}>Finalizados ({stats?.finalizados || 0}%)</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--color-warning)' }}></div>
-                    <span>Em Andamento ({stats?.emAndamento || 0}%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--color-warning)' }}></div>
+                    <span style={{ color: '#4B5563' }}>Em Andamento ({stats?.emAndamento || 0}%)</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--color-danger)' }}></div>
-                    <span>Pendentes ({stats?.pendentes || 0}%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--color-danger)' }}></div>
+                    <span style={{ color: '#4B5563' }}>Pendentes ({stats?.pendentes || 0}%)</span>
                 </div>
             </div>
         </div>
@@ -286,8 +315,8 @@ function DonutChart({ stats }) {
 }
 
 function LineChart({ data }) {
+    // Replaced with a clean Bar Chart style as requested
     const [hoveredIndex, setHoveredIndex] = useState(null);
-    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -300,204 +329,108 @@ function LineChart({ data }) {
     }
 
     const { values, labels, max } = data;
-
-    // Calculate coordinates for the line (0-100 scale for SVG)
-    const points = values.map((val, i) => {
-        const x = (i / (values.length - 1)) * 100;
-        const y = 95 - ((val / (max || 1)) * 90); // Use 95-5 range to keep points within view
-        return { x, y, value: val, label: labels[i] };
-    });
-
-    // Function to generate a smooth Cubic Bezier path
-    // Based on: https://medium.com/@francoisromain/smooth-a-svg-path-with-bezier-curves-e37053933190
-    const smoothing = 0.15;
-    const line = (point, i, a) => {
-        if (i === 0) return `M ${point.x} ${point.y}`;
-
-        // Control point logic
-        const p0 = a[i - 2] || a[i - 1];
-        const p1 = a[i - 1];
-        const p2 = point;
-        const p3 = a[i + 1] || point;
-
-        const cp1x = p1.x + (p2.x - p0.x) * smoothing;
-        const cp1y = p1.y + (p2.y - p0.y) * smoothing;
-        const cp2x = p2.x - (p3.x - p1.x) * smoothing;
-        const cp2y = p2.y - (p3.y - p1.y) * smoothing;
-
-        return `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-    };
-
-    const linePath = points.map((p, i, a) => line(p, i, a)).join(' ');
-    const areaPath = `${linePath} L 100 100 L 0 100 Z`;
-
-    const handleMouseMove = (e, index) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setTooltipPos({
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
-        });
-        setHoveredIndex(index);
-    };
+    // Ensure max is at least 5 for scale
+    const chartMax = Math.max(max, 5);
 
     return (
-        <div
-            style={{ width: '100%', height: '100%', position: 'relative', padding: '10px 10px 40px 50px', userSelect: 'none' }}
-            translate="no"
-        >
-            {/* Tooltip */}
-            {hoveredIndex !== null && (
-                <div style={{
-                    position: 'absolute',
-                    left: `${tooltipPos.x}px`,
-                    top: `${tooltipPos.y - 60}px`,
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                    color: 'white',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    pointerEvents: 'none',
-                    zIndex: 100,
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-                    transform: 'translateX(-50%)',
-                    transition: 'all 0.1s ease-out',
-                    backdropFilter: 'blur(4px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>{points[hoveredIndex].label}</div>
-                    <div style={{ color: '#4ade80', fontSize: '1.1rem', fontWeight: '800' }}>{points[hoveredIndex].value} <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Peritagens</span></div>
-                </div>
-            )}
+        <div style={{ width: '100%', height: '100%', position: 'relative', padding: '10px 10px 30px 40px' }}>
 
-            {/* Y Axis Labels */}
-            <div style={{
-                position: 'absolute',
-                left: 0,
-                top: '10px',
-                bottom: '40px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                fontSize: '0.75rem',
-                color: '#9CA3AF',
-                fontWeight: '600',
-                textAlign: 'right',
-                width: '40px'
-            }}>
-                <span>{max}</span>
-                <span>{Math.round(max * 0.75)}</span>
-                <span>{Math.round(max * 0.5)}</span>
-                <span>{Math.round(max * 0.25)}</span>
-                <span>0</span>
+            {/* Y Axis Grid & Labels */}
+            <div style={{ position: 'absolute', inset: '10px 10px 30px 40px' }}>
+                {[0, 1, 2, 3, 4, 5].map((tick, i) => {
+                    // Create 5 grid lines based on relative position
+                    const yPos = 100 - (i * 20); // 0%, 20%, 40%, 60%, 80%, 100% bottom-up? 
+                    // Let's do distinct values based on chartMax
+                    const val = Math.round((chartMax / 5) * i);
+                    const percentage = (val / chartMax) * 100;
+
+                    return (
+                        <div key={i} style={{ position: 'absolute', left: '-30px', right: '0', bottom: `${percentage}%`, height: '1px', pointerEvents: 'none' }}>
+                            {/* Label */}
+                            <span style={{ position: 'absolute', left: 0, top: '-6px', fontSize: '0.75rem', color: '#9CA3AF', width: '20px', textAlign: 'right' }}>
+                                {val}
+                            </span>
+                            {/* Grid Line */}
+                            <div style={{ marginLeft: '30px', width: '100%', height: '1px', borderTop: '1px dashed #F3F4F6' }}></div>
+                        </div>
+                    );
+                })}
             </div>
 
-            <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-                    <defs>
-                        {/* Area Gradient */}
-                        <linearGradient id="premiumAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#22c55e" stopOpacity="0.3" />
-                            <stop offset="60%" stopColor="#22c55e" stopOpacity="0.05" />
-                            <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
-                        </linearGradient>
+            {/* Bars Container */}
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingLeft: '10px', paddingRight: '10px', position: 'relative', zIndex: 10 }}>
+                {values.map((value, i) => {
+                    const heightPercentage = (value / chartMax) * 100;
+                    const isHovered = hoveredIndex === i;
 
-                        {/* Line Glow Filter */}
-                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="1.5" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                    </defs>
+                    return (
+                        <div
+                            key={i}
+                            style={{
+                                flex: 1,
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                                justifyContent: 'center',
+                                position: 'relative'
+                            }}
+                            onMouseEnter={() => setHoveredIndex(i)}
+                            onMouseLeave={() => setHoveredIndex(null)}
+                        >
+                            {/* Bar / Pill */}
+                            <div style={{
+                                width: '60%', // Width of the bar relative to the slot
+                                maxWidth: '30px',
+                                height: isLoaded ? `${Math.max(heightPercentage, 2)}%` : '0%', // Min height 2% for visibility of 0 values as small pills
+                                backgroundColor: isLoaded ? 'white' : 'transparent', // Inner fill
+                                border: '2px solid #22c55e', // Green border
+                                borderRadius: '50px', // Pill shape
+                                transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                position: 'relative',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                boxShadow: isHovered ? '0 0 10px rgba(34, 197, 94, 0.3)' : 'none',
+                                transform: isHovered ? 'scaleY(1.05)' : 'none',
+                                transformOrigin: 'bottom'
+                            }}>
+                                {/* Tooltip on Hover */}
+                                {isHovered && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: '100%',
+                                        marginBottom: '8px',
+                                        backgroundColor: '#1F2937',
+                                        color: 'white',
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 'bold',
+                                        whiteSpace: 'nowrap',
+                                        zIndex: 20,
+                                        pointerEvents: 'none'
+                                    }}>
+                                        {value}
+                                    </div>
+                                )}
+                            </div>
 
-                    {/* Grid Lines */}
-                    {[0, 25, 50, 75, 100].map(level => (
-                        <line
-                            key={level}
-                            x1="0" y1={level} x2="100" y2={level}
-                            stroke="#F3F4F6"
-                            strokeWidth="0.5"
-                            strokeDasharray={level === 100 ? "0" : "4 4"}
-                        />
-                    ))}
-
-                    {/* Vertical Markers */}
-                    {points.map((p, i) => (
-                        <line key={i} x1={p.x} y1="0" x2={p.x} y2="100" stroke="#F3F4F6" strokeWidth="0.3" strokeOpacity={hoveredIndex === i ? 1 : 0} />
-                    ))}
-
-                    {/* Area under the curve */}
-                    <path
-                        d={areaPath}
-                        fill="url(#premiumAreaGradient)"
-                        style={{
-                            opacity: isLoaded ? 1 : 0,
-                            transition: 'opacity 1s ease-in-out'
-                        }}
-                    />
-
-                    {/* Premium Smooth Line */}
-                    <path
-                        d={linePath}
-                        fill="none"
-                        stroke="#22c55e"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        vectorEffect="non-scaling-stroke"
-                        filter="url(#glow)"
-                        style={{
-                            strokeDasharray: '400',
-                            strokeDashoffset: isLoaded ? '0' : '400',
-                            transition: 'stroke-dashoffset 2s ease-out'
-                        }}
-                    />
-
-                    {/* Data Points (Invisible trigger area for better hover) */}
-                    {points.map((p, i) => (
-                        <g key={i} onMouseEnter={(e) => handleMouseMove(e, i)} onMouseLeave={() => setHoveredIndex(null)}>
-                            {/* Larger invisible trigger */}
-                            <rect x={p.x - 4} y="0" width="8" height="100" fill="transparent" style={{ cursor: 'pointer' }} />
-
-                            {/* Visible point */}
-                            <circle
-                                cx={p.x}
-                                cy={p.y}
-                                r={hoveredIndex === i ? 6 : 4}
-                                fill="white"
-                                stroke="#22c55e"
-                                strokeWidth={hoveredIndex === i ? 3 : 2}
-                                vectorEffect="non-scaling-stroke"
-                                style={{
-                                    transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                    opacity: isLoaded ? 1 : 0,
-                                    transformOrigin: `${p.x}px ${p.y}px`,
-                                    transform: hoveredIndex === i ? 'scale(1.2)' : 'scale(1)'
-                                }}
-                            />
-                        </g>
-                    ))}
-                </svg>
-            </div>
-
-            {/* X Axis Labels */}
-            <div style={{
-                position: 'absolute',
-                left: '50px',
-                right: '10px',
-                bottom: 0,
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '0.75rem',
-                color: '#6B7280',
-                fontWeight: '700'
-            }}>
-                {labels.map((l, i) => (
-                    <span key={i} style={{
-                        flex: 1,
-                        textAlign: 'center',
-                        color: hoveredIndex === i ? '#22c55e' : '#6B7280',
-                        transition: 'color 0.2s'
-                    }}>{l}</span>
-                ))}
+                            {/* X Axis Label */}
+                            <div style={{
+                                position: 'absolute',
+                                bottom: '-25px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                fontSize: '0.75rem',
+                                color: isHovered ? '#22c55e' : '#6B7280',
+                                fontWeight: isHovered ? '700' : '500',
+                                transition: 'color 0.2s',
+                                whiteSpace: 'nowrap'
+                            }}>
+                                {labels[i]}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

@@ -107,7 +107,7 @@ export default function Timeline() {
                                     transition: 'all 0.2s shadow'
                                 }}
                                 onMouseOver={(e) => {
-                                    e.currentTarget.style.borderHeader = '1px solid #006945';
+                                    e.currentTarget.style.borderHeader = '1px solid #2563EB';
                                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                                 }}
                                 onMouseOut={(e) => {
@@ -116,7 +116,7 @@ export default function Timeline() {
                                 }}
                             >
                                 <div>
-                                    <div style={{ fontSize: '0.75rem', color: '#006945', fontWeight: '700', marginBottom: '0.25rem' }}>#{p.orcamento}</div>
+                                    <div style={{ fontSize: '0.75rem', color: '#2563EB', fontWeight: '700', marginBottom: '0.25rem' }}>#{p.orcamento}</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: '700' }}>{p.cliente}</div>
                                     <div style={{ fontSize: '0.85rem', color: '#666' }}>{p.equipamento}</div>
                                 </div>
@@ -168,7 +168,7 @@ export default function Timeline() {
                     </div>
                     <div style={{ fontSize: '2rem', fontWeight: '800', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <span>Etapa Atual:</span>
-                        <span style={{ color: '#006945' }}>{currentStageData.label}</span>
+                        <span style={{ color: '#2563EB' }}>{currentStageData.label}</span>
                     </div>
                 </div>
 
@@ -184,9 +184,9 @@ export default function Timeline() {
                 }}>
                     <div style={{
                         width: '40px', height: '40px',
-                        borderRadius: '50%', border: '2px solid #006945',
+                        borderRadius: '50%', border: '2px solid #2563EB',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#006945'
+                        color: '#2563EB'
                     }}>
                         <User size={20} />
                     </div>
@@ -203,9 +203,9 @@ export default function Timeline() {
                     const isActive = index === currentStageIndex;
                     const isPassed = index < currentStageIndex;
 
-                    const cardBg = isActive ? '#FFD700' : isPassed ? '#E8F5E9' : '#F3F4F6';
-                    const iconColor = isActive ? '#000' : isPassed ? '#1A7F3C' : '#9CA3AF';
-                    const textColor = isActive ? '#000' : isPassed ? '#1A7F3C' : '#6B7280';
+                    const cardBg = isActive ? '#FFD700' : isPassed ? '#EFF6FF' : '#F3F4F6';
+                    const iconColor = isActive ? '#000' : isPassed ? '#2563EB' : '#9CA3AF';
+                    const textColor = isActive ? '#000' : isPassed ? '#2563EB' : '#6B7280';
 
                     return (
                         <div key={stage.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
@@ -277,7 +277,7 @@ export default function Timeline() {
             <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem', backgroundColor: '#F9FAFB', borderRadius: '16px', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '700' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#1A7F3C' }}></div>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2563EB' }}></div>
                         EXECUTADO
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '700' }}>

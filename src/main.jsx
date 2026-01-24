@@ -2,6 +2,16 @@ import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { initializeMock } from './utils/mockSupabase';
+import { seedDatabase } from './utils/seedDatabase';
+
+// Expose seed tool for simulation
+window.seedDatabase = seedDatabase;
+
+// Check for Simulation Mode
+if (localStorage.getItem('hidracil_offline_mode') === 'true') {
+  initializeMock();
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

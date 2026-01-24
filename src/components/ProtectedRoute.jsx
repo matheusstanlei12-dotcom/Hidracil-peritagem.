@@ -17,6 +17,12 @@ export default function ProtectedRoute({ children, allowedRoles }) {
         return <Navigate to="/login" replace />;
     }
 
+    // Force Simulation/Environment Setup if not set
+    const simulationPlan = localStorage.getItem('hidracil_simulation_plan');
+    if (!simulationPlan && !isAndroid) {
+        return <Navigate to="/simulation" replace />;
+    }
+
     // Trava para Android (APK)
     if (isAndroid) {
         const isPathAllowed = allowedAndroidPaths.some(path =>

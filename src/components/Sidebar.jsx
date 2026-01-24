@@ -16,7 +16,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { Capacitor } from '@capacitor/core';
 
-const APP_VERSION = "2.1.2 - Hidracil Build";
+const APP_VERSION = "2.1.2 - Trust Tecnologia Build";
 
 
 export default function Sidebar() {
@@ -82,15 +82,19 @@ export default function Sidebar() {
     const menuItems = [
         { label: isAndroid ? 'Minhas Peritagens' : 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'] },
         { label: 'Todas as Peritagens', path: '/peritagens', icon: FileText, roles: ['Gestor', 'Perito', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
-        { label: 'Linha do Tempo / Status', path: '/timeline', icon: Clock, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
         { label: 'Nova Peritagem', path: '/nova-peritagem', icon: PlusCircle, roles: ['Gestor', 'Perito'] },
-        { label: 'Aguardando Compras', path: '/pendentes-compras', icon: ShoppingCart, color: 'orange', roles: ['Gestor', 'Comprador', 'PCP'], hideOnAndroid: true },
-        { label: 'Aguardando Orçamento', path: '/pendentes-orcamento', icon: DollarSign, color: 'green', roles: ['Gestor', 'Orçamentista', 'PCP'], hideOnAndroid: true },
         { label: 'Relatórios PDF', path: '/relatorios', icon: FileText, roles: ['Gestor', 'Comprador', 'Orçamentista', 'PCP'], hideOnAndroid: true },
-        { label: 'Gestão de Usuários', path: '/usuarios', icon: Users, roles: ['Gestor'], hideOnAndroid: true },
     ];
 
     const filteredItems = menuItems.filter(item => {
+        // --- Added Logic for Simulation Plan ---
+        const simulationPlan = localStorage.getItem('hidracil_simulation_plan');
+        if (simulationPlan === 'basic') {
+            // Hide Timeline for Basic Plan
+            if (item.path === '/timeline') return false;
+        }
+        // ----------------------------------------
+
         const roleAllowed = !item.roles || item.roles.includes(user?.role);
         if (isAndroid) {
             // Em Android, só permite o que não está escondido e remove o que não é Dashboard/Nova
@@ -141,7 +145,7 @@ export default function Sidebar() {
             }} className="sidebar-container">
 
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)', textAlign: 'center' }}>
-                    <img src="/logo.png" alt="HIDRACIL Logo" style={{ maxWidth: '180px', height: 'auto' }} />
+                    <img src="/logo.png" alt="Trust Tecnologia" style={{ maxWidth: '180px', height: 'auto' }} />
                 </div>
 
                 <nav style={{ flex: 1, padding: '1rem 0', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="hide-scroll">
@@ -155,7 +159,7 @@ export default function Sidebar() {
                                 alignItems: 'center',
                                 padding: '0.75rem 1.5rem',
                                 color: isActive(item.path) ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                backgroundColor: isActive(item.path) ? 'rgba(26, 127, 60, 0.1)' : 'transparent',
+                                backgroundColor: isActive(item.path) ? 'rgba(37, 99, 235, 0.1)' : 'transparent',
                                 borderLeft: isActive(item.path) ? '4px solid var(--color-primary)' : '4px solid transparent',
                                 textDecoration: 'none',
                                 fontWeight: isActive(item.path) ? '600' : '400',

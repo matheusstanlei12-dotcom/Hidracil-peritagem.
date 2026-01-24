@@ -1,14 +1,14 @@
 import jsPDF from 'jspdf';
 
 const COLORS = {
-    primary: '#006945',      // Hidracil Green
-    primaryLight: '#F3FBF7', // Ultra light green for backgrounds
+    primary: '#2563EB',      // Trust Tecnologia Blue
+    primaryLight: '#EFF6FF', // Ultra light blue for backgrounds
     secondary: '#111827',    // Near black for high contrast
     text: '#4B5563',         // Slate gray for readability
     muted: '#9CA3AF',        // Gray for labels
     border: '#E5E7EB',       // Modern light border
     white: '#FFFFFF',
-    accent: '#059669'        // Vibrant green for icons/markers
+    accent: '#3B82F6'        // Vibrant blue for icons/markers
 };
 
 const PAGE = {
